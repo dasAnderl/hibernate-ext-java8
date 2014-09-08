@@ -1,13 +1,15 @@
 package com.anderl.hibernate.ext;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
+import com.anderl.hibernate.ext.wrappers.CriterionWrapper;
+import com.anderl.hibernate.ext.wrappers.OrCriterionWrapper;
+import com.anderl.hibernate.ext.wrappers.OrderWrapper;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by ga2unte on 11/22/13.
@@ -15,18 +17,13 @@ import java.util.List;
 public class HibernateWrapperToCriteriaMapper {
 
     public static Criteria addCriterionWrappers(Criteria criteria,
-                                                List<HibernateCriterionWrapper> criterionWrappers,
-                                                List<HibernateCriterionOrWrapper> criterionOrWrappers,
-                                                HibernateOrderWrapper orderWrapper) {
+                                                List<CriterionWrapper> criterionWrappers,
+                                                List<OrCriterionWrapper> criterionOrWrappers,
+                                                OrderWrapper orderWrapper) {
         Criterion andCriterion = null;
         if (!CollectionUtils.isEmpty(criterionWrappers)) {
 
-            List<Criterion> criterions = Lists.transform(criterionWrappers, new Function<HibernateCriterionWrapper, Criterion>() {
-                @Override
-                public Criterion apply(HibernateCriterionWrapper wrapper) {
-                    return wrapper.getCriterion();
-                }
-            });
+            List<Criterion> criterions = criterionWrappers.stream().map(wrapper -> wrapper.getCriterion()).collect(Collectors.toList());
 
             andCriterion = Restrictions.and(criterions.toArray(new Criterion[criterions.size()]));
         }
@@ -35,12 +32,7 @@ public class HibernateWrapperToCriteriaMapper {
             criteria.add(andCriterion);
         } else {
 
-            List<Criterion> orCriterions = Lists.newArrayList(Lists.transform(criterionOrWrappers, new Function<HibernateCriterionOrWrapper, Criterion>() {
-                @Override
-                public Criterion apply(HibernateCriterionOrWrapper hibernateCriterionOrWrapper) {
-                    return hibernateCriterionOrWrapper.getCriterion();
-                }
-            }));
+            List<Criterion> orCriterions = criterionOrWrappers.stream().map(orWrapper -> orWrapper.getCriterion()).collect(Collectors.toList());
 
             if (!CollectionUtils.isEmpty(orCriterions)) {
                 if (andCriterion != null) {
@@ -58,7 +50,7 @@ public class HibernateWrapperToCriteriaMapper {
     }
 
     public static Criteria addCriterionWrappers(Criteria criteria,
-                                                PagingCriteria pagingCriteria) {
-        return addCriterionWrappers(criteria, pagingCriteria.getWrappersRelevantForQuery(), pagingCriteria.getOrWrappersRelevantForQuery(), pagingCriteria.getOrderWrapper());
+                                                HasCriteria hasCriteria) {
+        return addCriterionWrappers(criteria, hasCriteria.getCriterions(), hasCriteria.getOrCriterions(), hasCriteria.getOrderWrapper());
     }
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.anderl.hibernate.ext;
+package com.anderl.hibernate.ext.session.mgmt;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;

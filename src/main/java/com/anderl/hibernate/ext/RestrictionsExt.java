@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * Created by ga2unte on 12/3/13.
  */
-public enum HibernateCriterionEnum {
+public enum RestrictionsExt {
 
     equal(false, false) {
         public Criterion get(String propertyName, Object value) {
@@ -86,7 +86,7 @@ public enum HibernateCriterionEnum {
     private boolean isNullValueAllowed;
     private boolean isMultiValue;
 
-    HibernateCriterionEnum(boolean isNullAllowed, boolean isMultiValue) {
+    RestrictionsExt(boolean isNullAllowed, boolean isMultiValue) {
         this.isNullValueAllowed = isNullAllowed;
         this.isMultiValue = isMultiValue;
     }

@@ -1,7 +1,9 @@
-package com.anderl.hibernate.ext;
+package com.anderl.hibernate.ext.wrappers;
 
 
-import org.hibernate.criterion.Criterion;
+import com.anderl.hibernate.ext.AliasUtils;
+import com.anderl.hibernate.ext.ColumnControl;
+import com.anderl.hibernate.ext.RestrictionsExt;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
@@ -12,36 +14,36 @@ import java.util.Collection;
 /**
  * Created by ga2unte on 12/2/13.
  */
-public class HibernateCriterionWrapper<T> implements ColumnControl<T> {
+public class CriterionWrapper<T> implements ColumnControl<T> {
 
     private T value = null;
-    private HibernateCriterionEnum hibernateCriterionEnum;
+    private RestrictionsExt restrictionsExt;
     private boolean visible;
     private String labelMsgKey;
     private String id;
-    private CriterionFieldJoinMappings.CriterionMapper criterionMapper;
+    private AliasUtils.Criterion criterion;
 
-    private String getId(CriterionFieldJoinMappings.CriterionMapper criterionMapper) {
-        return criterionMapper.getFieldPath().replace(".", "");
+    private String getId(AliasUtils.Criterion criterion) {
+        return criterion.getFieldPath().replace(".", "");
     }
 
-    public HibernateCriterionWrapper(CriterionFieldJoinMappings.CriterionMapper criterionMapper, HibernateCriterionEnum hibernateCriterionEnum, boolean visible, String labelMsgKey) {
-        this.criterionMapper = criterionMapper;
-        this.hibernateCriterionEnum = hibernateCriterionEnum;
+    public CriterionWrapper(AliasUtils.Criterion criterion, RestrictionsExt restrictionsExt, boolean visible, String labelMsgKey) {
+        this.criterion = criterion;
+        this.restrictionsExt = restrictionsExt;
         this.visible = visible;
         this.labelMsgKey = labelMsgKey;
-        id = getId(criterionMapper);
+        id = getId(criterion);
     }
 
-    public HibernateCriterionWrapper(CriterionFieldJoinMappings.CriterionMapper criterionMapper, HibernateCriterionEnum hibernateCriterionEnum, T value, boolean visible, String labelMsgKey) {
-        this(criterionMapper, hibernateCriterionEnum, visible, labelMsgKey);
+    public CriterionWrapper(AliasUtils.Criterion criterion, RestrictionsExt restrictionsExt, T value, boolean visible, String labelMsgKey) {
+        this(criterion, restrictionsExt, visible, labelMsgKey);
         this.value = value;
     }
 
     public boolean isValid() {
 
-        if (StringUtils.isEmpty(criterionMapper.getCriterionPath())) return false;
-        if (hibernateCriterionEnum.isNullValueAllowed() && value == null) return true;
+        if (StringUtils.isEmpty(criterion.getCriterionPath())) return false;
+        if (restrictionsExt.isNullValueAllowed() && value == null) return true;
         if (StringUtils.isEmpty(value)) return false;
         //used for multicriterias e.g. aopId and Id -> exclude invalid criteria because an aopid is not valid as type for id
         if (isIdProperty()) {
@@ -52,7 +54,7 @@ public class HibernateCriterionWrapper<T> implements ColumnControl<T> {
                 return false;
             }
         }
-        if (hibernateCriterionEnum.isMultiValue()) {
+        if (restrictionsExt.isMultiValue()) {
             if (value instanceof Collection) {
                 return !CollectionUtils.isEmpty((Collection) value);
             }
@@ -64,29 +66,29 @@ public class HibernateCriterionWrapper<T> implements ColumnControl<T> {
     }
 
     private boolean isIdProperty() {
-        if (criterionMapper.getCriterionPath().equals("id")
-                || criterionMapper.getCriterionPath().endsWith(".id")
-                || criterionMapper.getCriterionPath().equals("changedEntityId")
-                || criterionMapper.getCriterionPath().equals("clientId")
-                || criterionMapper.getCriterionPath().equals("assessmentId")
+        if (criterion.getCriterionPath().equals("id")
+                || criterion.getCriterionPath().endsWith(".id")
+                || criterion.getCriterionPath().equals("changedEntityId")
+                || criterion.getCriterionPath().equals("clientId")
+                || criterion.getCriterionPath().equals("assessmentId")
                 ) {
             return true;
         }
         return false;
     }
 
-    public Criterion getCriterion() {
+    public org.hibernate.criterion.Criterion getCriterion() {
         //TODO ga2unte: remove this check, just provide AbstractStaticEntity.type here
         if (value != null && value.getClass().getSuperclass() != null && value.getClass().getSuperclass().getSimpleName().contains("AbstractStaticEntity")) {
             final Field typeField = ReflectionUtils.findField(value.getClass(), "type");
-            return hibernateCriterionEnum.get(criterionMapper.getCriterionPath(), ReflectionUtils.getField(typeField, "type"));
+            return restrictionsExt.get(criterion.getCriterionPath(), ReflectionUtils.getField(typeField, "type"));
         }
-        return hibernateCriterionEnum.get(criterionMapper.getCriterionPath(), getValue());
+        return restrictionsExt.get(criterion.getCriterionPath(), getValue());
     }
 
     @Override
     public String getSortingProperty() {
-        return criterionMapper.getCriterionPath();
+        return criterion.getCriterionPath();
     }
 
     @Override
@@ -120,7 +122,7 @@ public class HibernateCriterionWrapper<T> implements ColumnControl<T> {
         return id;
     }
 
-    public CriterionFieldJoinMappings.CriterionMapper getCriterionMapper() {
-        return criterionMapper;
+    public AliasUtils.Criterion getAliasCriterion() {
+        return criterion;
     }
 }

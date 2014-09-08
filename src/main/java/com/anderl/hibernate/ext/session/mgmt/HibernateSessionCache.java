@@ -1,4 +1,4 @@
-package com.anderl.hibernate.ext;
+package com.anderl.hibernate.ext.session.mgmt;
 
 import org.hibernate.Session;
 import org.slf4j.LoggerFactory;

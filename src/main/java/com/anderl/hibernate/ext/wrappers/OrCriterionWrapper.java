@@ -1,11 +1,13 @@
-package com.anderl.hibernate.ext;
+package com.anderl.hibernate.ext.wrappers;
 
 
+import com.anderl.hibernate.ext.AliasUtils;
+import com.anderl.hibernate.ext.ColumnControl;
+import com.anderl.hibernate.ext.RestrictionsExt;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
-import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,10 +18,10 @@ import java.util.*;
 /**
  * Created by ga2unte on 12/2/13.
  * <p/>
- * An  {@link HibernateCriterionOrWrapper} contains multiple  {@link HibernateCriterionWrapper}.
+ * An  {@link OrCriterionWrapper} contains multiple  {@link CriterionWrapper}.
  * They will be written to a map and later cocatenated with or.
- * Never use same property for two different {@link HibernateCriterionWrapper}s.
- * To do this use {@link HibernateCriterionEnum}in.
+ * Never use same property for two different {@link CriterionWrapper}s.
+ * To do this use {@link com.anderl.hibernate.ext.RestrictionsExt}in.
  * <p/>
  * Example: You want to have a Criterion which selects entity which id "is not null OR name is null"
  * You would use:
@@ -31,82 +33,82 @@ import java.util.*;
  * would give a List with one hibernate {@link org.hibernate.criterion.Restrictions}:
  * Restrictions.and(Restrictions.or(Restrictions.isNotNull("id"), Restrictions.isNull("name")))
  * <p/>
- * In xhtml you can access the values of the contained {@link HibernateCriterionWrapper},
+ * In xhtml you can access the values of the contained {@link CriterionWrapper},
  * by calling #{<controller>.<myHibernateCriterionOrWrapper>.getByProperty("id").value}
  */
-public class HibernateCriterionOrWrapper implements ColumnControl {
+public class OrCriterionWrapper implements ColumnControl {
 
-    private static Logger log = LoggerFactory.getLogger(HibernateCriterionOrWrapper.class);
+    private static Logger log = LoggerFactory.getLogger(OrCriterionWrapper.class);
 
     //Defines how the subcriterias are appended to the query:
     // true -> ... AND (subcriteria)
     // false -> ... OR (subcriteria)
     private boolean outerConcatAnd = true;
     private boolean innerAndConcat;
-    private HibernateCriterionWrapper firstWrapper;
+    private CriterionWrapper firstWrapper;
     private String id;
     private boolean visible;
-    private Map<String, HibernateCriterionWrapper<Object>> wrappersMappedByProperty = new HashMap<String, HibernateCriterionWrapper<Object>>();
+    private Map<String, CriterionWrapper<Object>> wrappersMappedByProperty = new HashMap<String, CriterionWrapper<Object>>();
 
-    private HibernateCriterionOrWrapper(boolean outerConcatAnd, boolean innerAndConcat, HibernateCriterionWrapper... hibernateCriterionWrappers) {
+    private OrCriterionWrapper(boolean outerConcatAnd, boolean innerAndConcat, CriterionWrapper... criterionWrappers) {
         this.outerConcatAnd = outerConcatAnd;
         this.innerAndConcat = innerAndConcat;
         //Attention: varargs order is reversed
-        for (HibernateCriterionWrapper criterionWrapper : hibernateCriterionWrappers) {
+        for (CriterionWrapper criterionWrapper : criterionWrappers) {
             firstWrapper = criterionWrapper;
-            this.id = "multiCriterion" + firstWrapper.getCriterionMapper().getCriterionPath().replace(".", "");
-            String property = criterionWrapper.getCriterionMapper().getCriterionPath();
+            this.id = "multiCriterion" + firstWrapper.getAliasCriterion().getCriterionPath().replace(".", "");
+            String property = criterionWrapper.getAliasCriterion().getCriterionPath();
             if (wrappersMappedByProperty.containsKey(property)) {
-                log.error("{} used with same property more than once. use {} instead. You query will not return correct results", this.getClass().getSimpleName(), HibernateCriterionEnum.in);
-                this.wrappersMappedByProperty = new HashMap<String, HibernateCriterionWrapper<Object>>();
+                log.error("{} used with same property more than once. use {} instead. You query will not return correct results", this.getClass().getSimpleName(), RestrictionsExt.in);
+                this.wrappersMappedByProperty = new HashMap<String, CriterionWrapper<Object>>();
                 continue;
             }
             wrappersMappedByProperty.put(property, criterionWrapper);
         }
     }
 
-    public static HibernateCriterionOrWrapper andOr(HibernateCriterionWrapper... hibernateCriterionWrappers) {
-        return new HibernateCriterionOrWrapper(true, false, hibernateCriterionWrappers);
+    public static OrCriterionWrapper andOr(CriterionWrapper... criterionWrappers) {
+        return new OrCriterionWrapper(true, false, criterionWrappers);
     }
 
-    public static HibernateCriterionOrWrapper orOr(HibernateCriterionWrapper... hibernateCriterionWrappers) {
-        return new HibernateCriterionOrWrapper(false, false, hibernateCriterionWrappers);
+    public static OrCriterionWrapper orOr(CriterionWrapper... criterionWrappers) {
+        return new OrCriterionWrapper(false, false, criterionWrappers);
     }
 
-    public static HibernateCriterionOrWrapper andAnd(HibernateCriterionWrapper... hibernateCriterionWrappers) {
-        return new HibernateCriterionOrWrapper(true, true, hibernateCriterionWrappers);
+    public static OrCriterionWrapper andAnd(CriterionWrapper... criterionWrappers) {
+        return new OrCriterionWrapper(true, true, criterionWrappers);
     }
 
-    public static HibernateCriterionOrWrapper orAnd(HibernateCriterionWrapper... hibernateCriterionWrappers) {
-        return new HibernateCriterionOrWrapper(false, true, hibernateCriterionWrappers);
+    public static OrCriterionWrapper orAnd(CriterionWrapper... criterionWrappers) {
+        return new OrCriterionWrapper(false, true, criterionWrappers);
     }
 
-    public CriterionFieldJoinMappings.CriterionMapper getCriterionMapper() {
-        return firstWrapper.getCriterionMapper();
+    public AliasUtils.Criterion getCriterionMapper() {
+        return firstWrapper.getAliasCriterion();
     }
 
-    public Criterion getCriterion() {
+    public org.hibernate.criterion.Criterion getCriterion() {
 
-        Predicate<HibernateCriterionWrapper> isValid = new Predicate<HibernateCriterionWrapper>() {
+        Predicate<CriterionWrapper> isValid = new Predicate<CriterionWrapper>() {
             @Override
-            public boolean apply(HibernateCriterionWrapper hibernateCriterionWrapper) {
+            public boolean apply(CriterionWrapper hibernateCriterionWrapper) {
                 return hibernateCriterionWrapper.isValid();
             }
         };
-        Collection<HibernateCriterionWrapper<Object>> validCriterionWrappers = Collections2.filter(getWrappersMappedByProperty().values(), isValid);
+        Collection<CriterionWrapper<Object>> validCriterionWrappers = Collections2.filter(getWrappersMappedByProperty().values(), isValid);
 
-        Function<HibernateCriterionWrapper, Criterion> getCriterions = new Function<HibernateCriterionWrapper, Criterion>() {
+        Function<CriterionWrapper, org.hibernate.criterion.Criterion> getCriterions = new Function<CriterionWrapper, org.hibernate.criterion.Criterion>() {
             @Override
-            public Criterion apply(HibernateCriterionWrapper hibernateCriterionOrWrapper) {
+            public org.hibernate.criterion.Criterion apply(CriterionWrapper hibernateCriterionOrWrapper) {
                 return hibernateCriterionOrWrapper.getCriterion();
             }
         };
-        List<HibernateCriterionWrapper<Object>> validCriterionWrappersList = Lists.newArrayList(validCriterionWrappers);
-        List<Criterion> validCriterions = Lists.transform(validCriterionWrappersList, getCriterions);
+        List<CriterionWrapper<Object>> validCriterionWrappersList = Lists.newArrayList(validCriterionWrappers);
+        List<org.hibernate.criterion.Criterion> validCriterions = Lists.transform(validCriterionWrappersList, getCriterions);
 
         if (CollectionUtils.isEmpty(validCriterions)) return null;
-        Criterion[] predicates = validCriterions.toArray(new Criterion[validCriterions.size()]);
-        Criterion junction;
+        org.hibernate.criterion.Criterion[] predicates = validCriterions.toArray(new org.hibernate.criterion.Criterion[validCriterions.size()]);
+        org.hibernate.criterion.Criterion junction;
         if (outerConcatAnd && innerAndConcat) {
             junction = Restrictions.and(Restrictions.and(predicates));
         } else if (outerConcatAnd && !innerAndConcat) {
@@ -121,7 +123,7 @@ public class HibernateCriterionOrWrapper implements ColumnControl {
 
     private void setValueForAllCriterions(Object value) {
 
-        for (HibernateCriterionWrapper criterionWrapper : wrappersMappedByProperty.values()) {
+        for (CriterionWrapper criterionWrapper : wrappersMappedByProperty.values()) {
             criterionWrapper.setValue(value);
         }
     }
@@ -142,13 +144,13 @@ public class HibernateCriterionOrWrapper implements ColumnControl {
     }
 
     /**
-     * Return property of the first {@link HibernateCriterionWrapper}
+     * Return property of the first {@link CriterionWrapper}
      *
      * @return
      */
     @Override
     public String getSortingProperty() {
-        return firstWrapper.getCriterionMapper().getCriterionPath();
+        return firstWrapper.getAliasCriterion().getCriterionPath();
     }
 
     /**
@@ -165,7 +167,7 @@ public class HibernateCriterionOrWrapper implements ColumnControl {
         return id;
     }
 
-    public Map<String, HibernateCriterionWrapper<Object>> getWrappersMappedByProperty() {
+    public Map<String, CriterionWrapper<Object>> getWrappersMappedByProperty() {
         return wrappersMappedByProperty;
     }
 
@@ -184,8 +186,8 @@ public class HibernateCriterionOrWrapper implements ColumnControl {
         return firstWrapper.getLabelMsgKey();
     }
 
-    public List<HibernateCriterionWrapper> getHibernateCriterionWrappers() {
-        return CollectionUtils.isEmpty(getWrappersMappedByProperty().values()) ? new ArrayList<HibernateCriterionWrapper>()
-                : new ArrayList<HibernateCriterionWrapper>(getWrappersMappedByProperty().values());
+    public List<CriterionWrapper> getHibernateCriterionWrappers() {
+        return CollectionUtils.isEmpty(getWrappersMappedByProperty().values()) ? new ArrayList<CriterionWrapper>()
+                : new ArrayList<CriterionWrapper>(getWrappersMappedByProperty().values());
     }
 }

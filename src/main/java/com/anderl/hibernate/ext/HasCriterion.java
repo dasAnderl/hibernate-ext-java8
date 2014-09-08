@@ -1,5 +1,7 @@
 package com.anderl.hibernate.ext;
 
+import com.anderl.hibernate.ext.wrappers.CriterionWrapper;
+
 import java.util.List;
 
 /**
@@ -7,7 +9,7 @@ import java.util.List;
  */
 public interface HasCriterion<T> {
 
-    default List<HibernateCriterionWrapper> getCriterions() {
-        return Helper.invokeGettersByReturnType(HibernateCriterionWrapper.class, this);
+    default List<CriterionWrapper> getCriterions() {
+        return Helper.invokeGettersByReturnType(CriterionWrapper.class, this);
     }
 }

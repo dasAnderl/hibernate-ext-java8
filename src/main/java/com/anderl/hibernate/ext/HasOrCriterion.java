@@ -1,5 +1,7 @@
 package com.anderl.hibernate.ext;
 
+import com.anderl.hibernate.ext.wrappers.OrCriterionWrapper;
+
 import java.util.List;
 
 /**
@@ -7,7 +9,7 @@ import java.util.List;
  */
 public interface HasOrCriterion<T> {
 
-    default List<HibernateCriterionOrWrapper> getOrCriterions() {
-        return Helper.invokeGettersByReturnType(HibernateCriterionOrWrapper.class, this);
+    default List<OrCriterionWrapper> getOrCriterions() {
+        return Helper.invokeGettersByReturnType(OrCriterionWrapper.class, this);
     }
 }

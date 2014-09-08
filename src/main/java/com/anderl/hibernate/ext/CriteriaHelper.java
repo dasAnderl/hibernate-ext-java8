@@ -1,5 +1,6 @@
 package com.anderl.hibernate.ext;
 
+import com.anderl.hibernate.ext.wrappers.OrderWrapper;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
@@ -51,14 +52,14 @@ public class CriteriaHelper {
      * @param orderWrapper
      * @return
      */
-    public static void addDistinctIdAndOrderProjections(Criteria criteria, HibernateOrderWrapper orderWrapper) {
+    public static void addDistinctIdAndOrderProjections(Criteria criteria, OrderWrapper orderWrapper) {
 
         ProjectionList projectionList = Projections.projectionList();
         projectionList
                 .add(Projections.distinct
                         (Projections.property("id")));
         if (orderWrapper != null) {
-            projectionList.add(Projections.property(orderWrapper.getCriterionMapper().getCriterionPath()));
+            projectionList.add(Projections.property(orderWrapper.getCriterion().getCriterionPath()));
         }
         criteria.setProjection(projectionList);
     }

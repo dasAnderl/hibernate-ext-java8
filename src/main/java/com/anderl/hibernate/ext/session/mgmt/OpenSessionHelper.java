@@ -1,4 +1,4 @@
-package com.anderl.hibernate.ext;
+package com.anderl.hibernate.ext.session.mgmt;
 
 import org.hibernate.FlushMode;
 import org.hibernate.HibernateException;
