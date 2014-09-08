@@ -1,5 +1,6 @@
 package com.anderl.hibernate.ext;
 
+import com.anderl.hibernate.ext.helper.Helper;
 import com.anderl.hibernate.ext.wrappers.OrderWrapper;
 
 /**

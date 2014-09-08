@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by ga2unte on 12/2/13.
@@ -48,7 +49,7 @@ public class OrCriterionWrapper implements ColumnControl {
     private CriterionWrapper firstWrapper;
     private String id;
     private boolean visible;
-    private Map<String, CriterionWrapper<Object>> wrappersMappedByProperty = new HashMap<String, CriterionWrapper<Object>>();
+    private Map<String, CriterionWrapper<Object>> wrappersMappedByProperty = new HashMap<>();
 
     private OrCriterionWrapper(boolean outerConcatAnd, boolean innerAndConcat, CriterionWrapper... criterionWrappers) {
         this.outerConcatAnd = outerConcatAnd;
@@ -60,7 +61,7 @@ public class OrCriterionWrapper implements ColumnControl {
             String property = criterionWrapper.getAliasCriterion().getCriterionPath();
             if (wrappersMappedByProperty.containsKey(property)) {
                 log.error("{} used with same property more than once. use {} instead. You query will not return correct results", this.getClass().getSimpleName(), RestrictionsExt.in);
-                this.wrappersMappedByProperty = new HashMap<String, CriterionWrapper<Object>>();
+                this.wrappersMappedByProperty = new HashMap<>();
                 continue;
             }
             wrappersMappedByProperty.put(property, criterionWrapper);
@@ -89,22 +90,9 @@ public class OrCriterionWrapper implements ColumnControl {
 
     public org.hibernate.criterion.Criterion getCriterion() {
 
-        Predicate<CriterionWrapper> isValid = new Predicate<CriterionWrapper>() {
-            @Override
-            public boolean apply(CriterionWrapper hibernateCriterionWrapper) {
-                return hibernateCriterionWrapper.isValid();
-            }
-        };
-        Collection<CriterionWrapper<Object>> validCriterionWrappers = Collections2.filter(getWrappersMappedByProperty().values(), isValid);
+        Collection<CriterionWrapper<Object>> validCriterionWrappers = getWrappersMappedByProperty().values().stream().filter(wrapper -> wrapper.isValid()).collect(Collectors.toList());
 
-        Function<CriterionWrapper, org.hibernate.criterion.Criterion> getCriterions = new Function<CriterionWrapper, org.hibernate.criterion.Criterion>() {
-            @Override
-            public org.hibernate.criterion.Criterion apply(CriterionWrapper hibernateCriterionOrWrapper) {
-                return hibernateCriterionOrWrapper.getCriterion();
-            }
-        };
-        List<CriterionWrapper<Object>> validCriterionWrappersList = Lists.newArrayList(validCriterionWrappers);
-        List<org.hibernate.criterion.Criterion> validCriterions = Lists.transform(validCriterionWrappersList, getCriterions);
+        List<org.hibernate.criterion.Criterion> validCriterions = validCriterionWrappers.stream().map(wrapper ->wrapper.getCriterion()).collect(Collectors.toList());
 
         if (CollectionUtils.isEmpty(validCriterions)) return null;
         org.hibernate.criterion.Criterion[] predicates = validCriterions.toArray(new org.hibernate.criterion.Criterion[validCriterions.size()]);
@@ -122,14 +110,7 @@ public class OrCriterionWrapper implements ColumnControl {
     }
 
     private void setValueForAllCriterions(Object value) {
-
-        for (CriterionWrapper criterionWrapper : wrappersMappedByProperty.values()) {
-            criterionWrapper.setValue(value);
-        }
-    }
-
-    public boolean isValid() {
-        return getCriterion() != null;
+        wrappersMappedByProperty.values().stream().forEach( wrapper -> wrapper.setValue(value));
     }
 
     /**
@@ -187,7 +168,7 @@ public class OrCriterionWrapper implements ColumnControl {
     }
 
     public List<CriterionWrapper> getHibernateCriterionWrappers() {
-        return CollectionUtils.isEmpty(getWrappersMappedByProperty().values()) ? new ArrayList<CriterionWrapper>()
-                : new ArrayList<CriterionWrapper>(getWrappersMappedByProperty().values());
+        return CollectionUtils.isEmpty(getWrappersMappedByProperty().values()) ? new ArrayList<>()
+                : new ArrayList<>(getWrappersMappedByProperty().values());
     }
 }

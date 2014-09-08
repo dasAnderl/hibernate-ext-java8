@@ -28,10 +28,6 @@ public class AliasUtils {
             return fieldPath;
         }
 
-        public String getAliasName() {
-            return fieldPath.replace(".", "_");
-        }
-
         public JoinType getJoinType() {
             return joinType;
         }

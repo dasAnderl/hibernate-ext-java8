@@ -1,4 +1,4 @@
-package com.anderl.hibernate.ext;
+package com.anderl.hibernate.ext.helper;
 
 import org.springframework.util.ReflectionUtils;
 

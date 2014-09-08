@@ -27,43 +27,6 @@ import java.util.stream.Collectors;
  */
 public class HibernateCriterionRetriever {
 
-    public static List<CriterionWrapper> getWrappersRelevantForQuery(Object object) {
-        List<CriterionWrapper> criterionWrappers = Helper.invokeGettersByReturnType(CriterionWrapper.class, object);
-        return Lists.newArrayList(
-                Collections2.filter(criterionWrappers, new Predicate<CriterionWrapper>() {
-                    @Override
-                    public boolean apply(CriterionWrapper criterionWrapper) {
-                        return criterionWrapper.isValid();
-                    }
-                })
-        );
-    }
-
-    public static List<OrCriterionWrapper> getOrWrappersRelevantForQuery(Object object) {
-        List<OrCriterionWrapper> orCriterionWrappers = Helper.invokeGettersByReturnType(OrCriterionWrapper.class, object);
-        return Lists.newArrayList(
-                Collections2.filter(orCriterionWrappers, new Predicate<OrCriterionWrapper>() {
-                    @Override
-                    public boolean apply(OrCriterionWrapper orCriterionWrapper) {
-                        return orCriterionWrapper.isValid();
-                    }
-                })
-        );
-    }
-
-    public static List<CriterionWrapper> getWrappers(Object object, final boolean visible) {
-        List<CriterionWrapper> criterionWrappers = Helper.invokeGettersByReturnType(CriterionWrapper.class, object);
-        return Lists.newArrayList(
-                Collections2.filter(criterionWrappers, new Predicate<CriterionWrapper>() {
-                    @Override
-                    public boolean apply(CriterionWrapper criterionWrapper) {
-                        return criterionWrapper.isVisible() == visible;
-                    }
-                })
-        );
-    }
-
-
     public static List<AliasUtils.SubAlias> getDistinctAliases(HasCriteria hasCriteria) {
 
         List<AliasUtils.SubAlias> aliasesNotNull = new ArrayList<AliasUtils.SubAlias>();
