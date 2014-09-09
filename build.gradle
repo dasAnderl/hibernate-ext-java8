@@ -43,8 +43,6 @@ task wrapper(type: Wrapper) {
     gradleVersion = '2.0'
 }
 
-def mavenRepoDir = 'C:\\projects\\git-repos\\maven-repo'
-
 uploadArchives {
     repositories.mavenDeployer {
         if (!version.contains("RELEASE")) {
