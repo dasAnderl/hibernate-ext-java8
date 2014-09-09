@@ -4,7 +4,7 @@ apply plugin: 'idea'
 apply plugin: 'maven'
 
 sourceCompatibility = 1.8
-version = '1.0'
+version = '1.0-SNAPSHOT'
 group = 'com.anderl'
 
 sourceSets.main.groovy.srcDirs += ["src/main/java"]
@@ -46,25 +46,40 @@ task wrapper(type: Wrapper) {
 uploadArchives {
     repositories.mavenDeployer {
         if (!version.contains("RELEASE")) {
-            repository(url: "file://$mavenRepoDir\\snapshots")
+            repository(url: "file://$mavenRepoDir/snapshots")
         } else {
-            repository(url: "file://$mavenRepoDir\\releases")
+            repository(url: "file://$mavenRepoDir/releases")
         }
 
     }
 }
 
-task gitAddMavenRepo(dependsOn: 'uploadArchives', type:Exec) {
+task gitAddMavenRepoWindows(dependsOn: 'uploadArchives', type:Exec) {
     workingDir mavenRepoDir
     commandLine 'cmd', '/c', 'C:\\Program Files (x86)\\Git\\bin\\git.exe', 'add', '--all'
 }
 
-task gitCommitMavenRepo(dependsOn: 'gitAddMavenRepo', type:Exec) {
+task gitCommitMavenRepoWindows(dependsOn: 'gitAddMavenRepoWindows', type:Exec) {
     workingDir mavenRepoDir
     commandLine 'cmd', '/c', 'C:\\Program Files (x86)\\Git\\bin\\git.exe', 'commit', '-m', "commited_version_$version"
 }
 
-task gitPushMavenRepo(dependsOn: 'gitCommitMavenRepo', type:Exec) {
+task gitPushMavenRepoWindows(dependsOn: 'gitCommitMavenRepoWindows', type:Exec) {
     workingDir mavenRepoDir
     commandLine 'cmd', '/c', 'C:\\Program Files (x86)\\Git\\bin\\git.exe', 'push', 'origin', 'master'
+}
+
+task gitAddMavenRepo(dependsOn: 'uploadArchives', type:Exec) {
+    workingDir mavenRepoDir
+    commandLine 'git', 'add', '--all'
+}
+
+task gitCommitMavenRepo(dependsOn: 'gitAddMavenRepo', type:Exec) {
+    workingDir mavenRepoDir
+    commandLine 'git', 'commit', '-m', "commited_version_$version"
+}
+
+task gitPushMavenRepo(dependsOn: 'gitCommitMavenRepo', type:Exec) {
+    workingDir mavenRepoDir
+    commandLine 'git', 'push', 'origin', 'master'
 }
