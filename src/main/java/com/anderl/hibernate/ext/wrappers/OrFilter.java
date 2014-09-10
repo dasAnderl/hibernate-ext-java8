@@ -45,7 +45,7 @@ public class OrFilter implements ColumnControl {
     private Filter firstWrapper;
     private String id;
     private boolean visible;
-    private Map<String, Filter<Object>> wrappersMappedByProperty = new HashMap<>();
+    private Map<String, Filter> wrappersMappedByProperty = new HashMap<>();
 
     private OrFilter(boolean outerConcatAnd, boolean innerAndConcat, Filter... filters) {
         this.outerConcatAnd = outerConcatAnd;
@@ -86,7 +86,7 @@ public class OrFilter implements ColumnControl {
 
     public org.hibernate.criterion.Criterion getCriterion() {
 
-        Collection<Filter<Object>> validFilters = getWrappersMappedByProperty().values().stream().filter(wrapper -> wrapper.isValid()).collect(Collectors.toList());
+        Collection<Filter> validFilters = getWrappersMappedByProperty().values().stream().filter(wrapper -> wrapper.isValid()).collect(Collectors.toList());
 
         List<org.hibernate.criterion.Criterion> validCriterions = validFilters.stream().map(wrapper ->wrapper.getCriterion()).collect(Collectors.toList());
 
@@ -144,7 +144,7 @@ public class OrFilter implements ColumnControl {
         return id;
     }
 
-    public Map<String, Filter<Object>> getWrappersMappedByProperty() {
+    public Map<String, Filter> getWrappersMappedByProperty() {
         return wrappersMappedByProperty;
     }
 

@@ -47,10 +47,10 @@ task wrapper(type: Wrapper) {
 
 uploadArchives {
     repositories.mavenDeployer {
-        if (!version.contains("RELEASE")) {
-            repository(url: "file://$mavenRepoDir/snapshots")
-        } else {
+        if (version.contains("RELEASE")) {
             repository(url: "file://$mavenRepoDir/releases")
+        } else {
+            repository(url: "file://$mavenRepoDir/snapshots")
         }
 
     }

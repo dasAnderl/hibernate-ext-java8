@@ -5,7 +5,6 @@ import com.anderl.hibernate.ext.test.TestPagingService
 import com.anderl.hibernate.ext.test.domain.SubEntity
 import com.anderl.hibernate.ext.test.domain.TestEntity
 import com.anderl.hibernate.ext.test.domain.TestEntityRepository
-import org.hibernate.sql.JoinType
 import org.junit.Before
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -13,7 +12,6 @@ import org.springframework.boot.test.SpringApplicationConfiguration
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 
 import javax.persistence.EntityManager
-
 
 /**
  * Created by ga2unte on 10.9.2014.

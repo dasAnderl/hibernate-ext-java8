@@ -8,6 +8,6 @@ import com.anderl.hibernate.ext.helper.Helper;
 public interface SearchFilter<T> extends HasFilter<T>, HasOrFilter<T>, HasOrder, HasPagingHelper {
 
     default Class<T> getType() {
-        return Helper.getGenericInterfaceType(this.getClass());
+        return Helper.getGenericInterfaceType(this.getClass(), 0);
     }
 }
