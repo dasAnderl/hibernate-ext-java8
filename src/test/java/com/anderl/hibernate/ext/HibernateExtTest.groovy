@@ -1,5 +1,6 @@
 package com.anderl.hibernate.ext
 
+import com.anderl.hibernate.ext.domain.SubEntity
 import com.anderl.hibernate.ext.domain.TestEntity
 import com.anderl.hibernate.ext.domain.TestEntityRepository
 import org.hibernate.Session
@@ -26,16 +27,20 @@ class HibernateExtTest extends groovy.util.GroovyTestCase {
     @Autowired
     TestEntityRepository testEntityRepository
 
-    String name1 = "name1"
-    String name2 = "name2"
-    String name3 = "name3"
-    int age1 = 1
-    int age2 = 2
-    int age3 = 3
+    static String name1 = "name1"
+    static String name2 = "name2"
+    static String name3 = "name3"
+    static int age1 = 1
+    static int age2 = 2
+    static int age3 = 3
 
-    TestEntity te1 = new TestEntity(name: name1, age: age1)
-    TestEntity te2 = new TestEntity(name: name2, age: age2)
-    TestEntity te3 = new TestEntity(name: name3, age: age3)
+    static TestEntity te1 = new TestEntity(name: name1, age: age1)
+    static TestEntity te2 = new TestEntity(name: name2, age: age2)
+    static TestEntity te3 = new TestEntity(name: name3, age: age3)
+
+    static {
+        te1.subEntities.add(new SubEntity(name: name3, age: age3, testEntity: te1))
+    }
 
     @Before
     void before() {
