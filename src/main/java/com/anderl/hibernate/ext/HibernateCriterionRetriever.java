@@ -4,9 +4,6 @@ package com.anderl.hibernate.ext;
 import com.anderl.hibernate.ext.wrappers.CriterionWrapper;
 import com.anderl.hibernate.ext.wrappers.OrCriterionWrapper;
 import com.anderl.hibernate.ext.wrappers.OrderWrapper;
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
@@ -27,13 +24,13 @@ import java.util.stream.Collectors;
  */
 public class HibernateCriterionRetriever {
 
-    public static List<AliasUtils.SubAlias> getDistinctAliases(HasCriteria hasCriteria) {
+    public static List<AliasUtils.SubAlias> getDistinctAliases(SearchCriteria searchCriteria) {
 
         List<AliasUtils.SubAlias> aliasesNotNull = new ArrayList<AliasUtils.SubAlias>();
-        aliasesNotNull = addAliasesForWrappers(hasCriteria.getCriterions(), aliasesNotNull);
-        aliasesNotNull = addAliasesForOrWrappers(hasCriteria.getOrCriterions(), aliasesNotNull);
+        aliasesNotNull = addAliasesForWrappers(searchCriteria.getCriterions(), aliasesNotNull);
+        aliasesNotNull = addAliasesForOrWrappers(searchCriteria.getOrCriterions(), aliasesNotNull);
 
-        OrderWrapper orderWrapper = hasCriteria.getOrderWrapper();
+        OrderWrapper orderWrapper = searchCriteria.getOrderWrapper();
         if (orderWrapper != null && orderWrapper.getCriterion().getAlias() != null) {
             aliasesNotNull.addAll(orderWrapper.getCriterion().getAlias().getSubAliases());
         }

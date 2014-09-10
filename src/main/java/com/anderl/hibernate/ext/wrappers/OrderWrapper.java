@@ -12,7 +12,7 @@ public class OrderWrapper {
     private boolean asc = true;
     private AliasUtils.Criterion criterion;
 
-    public OrderWrapper(AliasUtils.Criterion criterion, boolean asc) {
+    private OrderWrapper(AliasUtils.Criterion criterion, boolean asc) {
         this.criterion = criterion;
         this.asc = asc;
     }

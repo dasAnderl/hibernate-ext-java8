@@ -50,7 +50,7 @@ public class HibernateWrapperToCriteriaMapper {
     }
 
     public static Criteria addCriterionWrappers(Criteria criteria,
-                                                HasCriteria hasCriteria) {
-        return addCriterionWrappers(criteria, hasCriteria.getCriterions(), hasCriteria.getOrCriterions(), hasCriteria.getOrderWrapper());
+                                                SearchCriteria searchCriteria) {
+        return addCriterionWrappers(criteria, searchCriteria.getCriterions(), searchCriteria.getOrCriterions(), searchCriteria.getOrderWrapper());
     }
 }

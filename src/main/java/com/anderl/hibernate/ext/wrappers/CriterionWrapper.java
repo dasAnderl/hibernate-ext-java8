@@ -18,8 +18,8 @@ public class CriterionWrapper<T> implements ColumnControl<T> {
 
     private T value = null;
     private RestrictionsExt restrictionsExt;
-    private boolean visible;
-    private String labelMsgKey;
+    private boolean visible = true;
+    private String labelMsgKey = "label or msg key missing";
     private String id;
     private AliasUtils.Criterion criterion;
 
@@ -35,8 +35,8 @@ public class CriterionWrapper<T> implements ColumnControl<T> {
         id = getId(criterion);
     }
 
-    public CriterionWrapper(AliasUtils.Criterion criterion, RestrictionsExt restrictionsExt, T value, boolean visible, String labelMsgKey) {
-        this(criterion, restrictionsExt, visible, labelMsgKey);
+    public CriterionWrapper(AliasUtils.Criterion criterion, RestrictionsExt restrictionsExt, T value) {
+        this(criterion, restrictionsExt, true, "label or msg key missing");
         this.value = value;
     }
 

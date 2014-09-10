@@ -1,9 +1,12 @@
 package com.anderl.hibernate.ext
 
 import com.anderl.hibernate.ext.test.Application
+import com.anderl.hibernate.ext.test.TestPagingService
 import com.anderl.hibernate.ext.test.domain.SubEntity
 import com.anderl.hibernate.ext.test.domain.TestEntity
 import com.anderl.hibernate.ext.test.domain.TestEntityRepository
+import com.anderl.hibernate.ext.wrappers.CriterionWrapper
+import com.anderl.hibernate.ext.wrappers.OrderWrapper
 import org.hibernate.Session
 import org.junit.Before
 import org.junit.Test
@@ -14,6 +17,11 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.springframework.transaction.annotation.Transactional
 
 import javax.persistence.EntityManager
+
+import static com.anderl.hibernate.ext.AliasUtils.Alias.SUBENTITIES
+import static com.anderl.hibernate.ext.AliasUtils.Alias.SUBENTITIES
+import static com.anderl.hibernate.ext.AliasUtils.Alias.SUBENTITIES
+import static com.anderl.hibernate.ext.AliasUtils.Alias.SUBENTITIES
 
 /**
  * Created by ga2unte on 10.9.2014.
@@ -27,6 +35,9 @@ class HibernateExtTest extends groovy.util.GroovyTestCase {
 
     @Autowired
     TestEntityRepository testEntityRepository
+
+    @Autowired
+    TestPagingService<TestEntity> testPagingService;
 
     static String name1 = "name1"
     static String name2 = "name2"
@@ -47,7 +58,15 @@ class HibernateExtTest extends groovy.util.GroovyTestCase {
         te3.subEntities.add(new SubEntity(name: name3, age: age3, testEntity: te3))
     }
 
+    public class TestSearchCriteria implements SearchCriteria<TestEntity> {
 
+        OrderWrapper orderWrapper = OrderWrapper.desc(new AliasUtils.Criterion("name", SUBENTITIES));
+        PagingHelper pagingHelper = new PagingHelper();
+
+        CriterionWrapper<Integer> criterionNameEqName1 = new CriterionWrapper<>(new AliasUtils.Criterion("age"), RestrictionsExt.eq, name1);
+        CriterionWrapper<Integer> criterionSubEntAgeGt1 = new CriterionWrapper<>(new AliasUtils.Criterion("age", SUBENTITIES), RestrictionsExt.greaterThan, 1);
+        CriterionWrapper<List<String>> criterionSubEntNameInName1Name2 = new CriterionWrapper<>(new AliasUtils.Criterion("name", SUBENTITIES), RestrictionsExt.in, Arrays.asList(name1, name2));
+    }
 
     @Before
     void before() {
@@ -60,6 +79,6 @@ class HibernateExtTest extends groovy.util.GroovyTestCase {
     @Transactional
     void test() {
 
-        Session session = entityManager.unwrap(Session.class);
+        List<TestEntity> entities = testPagingService.page(new com.anderl.hibernate.ext.test.TestSearchCriteria())
     }
 }

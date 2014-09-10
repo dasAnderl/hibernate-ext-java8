@@ -14,7 +14,7 @@ public class AliasUtils {
 
     public enum Alias {
 
-        PRODUCT_BOOKINGENTITY_ACCOUNTSETUP_CLIENT_CREATOR("product.bookingEntity.accountSetup.client.creator", JoinType.LEFT_OUTER_JOIN);
+        SUBENTITIES("subEntities", JoinType.LEFT_OUTER_JOIN);
 
         private final String fieldPath;
         private final JoinType joinType;
