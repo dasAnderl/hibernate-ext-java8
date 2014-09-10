@@ -26,8 +26,6 @@ dependencies {
             "ch.qos.logback:logback-core:1.1.2",
             "ch.qos.logback:logback-classic:1.1.2",
             'javax.servlet:javax.servlet-api:3.1.0',
-//            "org.apache.commons:commons-lang3:3.3.2",
-//            'commons-collections:commons-collections:3.2.1',
             "org.springframework:spring-core:$versionSpring",
             "org.springframework:spring-web:$versionSpring",
             "org.springframework:spring-context:$versionSpring",
@@ -35,8 +33,12 @@ dependencies {
             "org.codehaus.groovy:groovy-all:2.3.6"
 
     testCompile "com.h2database:h2:1.4.181",
+            'org.springframework.data:spring-data-jpa',
+            "org.springframework.boot:spring-boot-starter-data-jpa:$versionSpringBoot",
+            "org.springframework.boot:spring-boot:$versionSpringBoot",
+            "org.springframework.boot:spring-boot-autoconfigure:$versionSpringBoot",
             "org.springframework.boot:spring-boot-starter-test:$versionSpringBoot",
-            "junit:junit:jar:4.11"
+            "junit:junit:4.11"
 }
 
 task wrapper(type: Wrapper) {
