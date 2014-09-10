@@ -1,8 +1,9 @@
 package com.anderl.hibernate.ext
 
-import com.anderl.hibernate.ext.domain.SubEntity
-import com.anderl.hibernate.ext.domain.TestEntity
-import com.anderl.hibernate.ext.domain.TestEntityRepository
+import com.anderl.hibernate.ext.test.Application
+import com.anderl.hibernate.ext.test.domain.SubEntity
+import com.anderl.hibernate.ext.test.domain.TestEntity
+import com.anderl.hibernate.ext.test.domain.TestEntityRepository
 import org.hibernate.Session
 import org.junit.Before
 import org.junit.Test
@@ -39,8 +40,14 @@ class HibernateExtTest extends groovy.util.GroovyTestCase {
     static TestEntity te3 = new TestEntity(name: name3, age: age3)
 
     static {
-        te1.subEntities.add(new SubEntity(name: name3, age: age3, testEntity: te1))
+        te1.subEntities.add(new SubEntity(name: name1, age: age1, testEntity: te1))
+        te1.subEntities.add(new SubEntity(name: name1, age: age1, testEntity: te1))
+        te1.subEntities.add(new SubEntity(name: "a different name", age: age1, testEntity: te1))
+        te2.subEntities.add(new SubEntity(name: name2, age: age2, testEntity: te2))
+        te3.subEntities.add(new SubEntity(name: name3, age: age3, testEntity: te3))
     }
+
+
 
     @Before
     void before() {

@@ -1,4 +1,4 @@
-package com.anderl.hibernate.ext;
+package com.anderl.hibernate.ext.test;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;

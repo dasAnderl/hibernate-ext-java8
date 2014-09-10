@@ -1,4 +1,4 @@
-package com.anderl.hibernate.ext.domain;
+package com.anderl.hibernate.ext.test.domain;
 
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
