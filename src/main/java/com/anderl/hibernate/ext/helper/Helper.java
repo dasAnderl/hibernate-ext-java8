@@ -42,7 +42,7 @@ public class Helper {
     }
 
     public static Class getGenericInterfaceType(Class clazz) {
-            return (Class<?>) ((ParameterizedTypeImpl)clazz.getGenericInterfaces()[0]).getActualTypeArguments()[0];
+        return (Class<?>) ((ParameterizedTypeImpl) clazz.getGenericInterfaces()[0]).getActualTypeArguments()[0];
     }
 
     public static boolean fieldExists(Class currentClass, String fieldName) {

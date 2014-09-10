@@ -2,13 +2,12 @@ package com.anderl.hibernate.ext;
 
 
 import com.anderl.hibernate.ext.helper.LogTimer;
-import com.anderl.hibernate.ext.wrappers.OrderWrapper;
+import com.anderl.hibernate.ext.wrappers.Order;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
@@ -35,32 +34,30 @@ public class PagingService<T> {
      * criteria. On that id list we return the accountsetups.
      * BE VERY CAREFUL WHEN CHANINGING THIS.
      *
-     * @param firstResultIndex
-     * @param maxResults
-     * @param searchCriteria
+     * @param searchFilter
      * @return
      */
     @Transactional(readOnly = true)
-    public <T> List<T> page(SearchCriteria searchCriteria) {
-        final int firstResultIndex = searchCriteria.getPagingHelper().firstResultIndex;
-        final int maxResults = searchCriteria.getPagingHelper().getPageSize();
+    public <T> List<T> page(SearchFilter searchFilter) {
+        final int firstResultIndex = searchFilter.getPagingHelper().getFirstResultIndex();
+        final int maxResults = searchFilter.getPagingHelper().getPageSize();
         LogTimer logTimer = new LogTimer().enter("page start firstResultIndex: {} maxResults {}", firstResultIndex, maxResults);
-        Criteria criteria = getCriteriaWithAliases(searchCriteria);
-        HibernateWrapperToCriteriaMapper.addCriterionWrappers(criteria, searchCriteria);
-        OrderWrapper orderWrapper = searchCriteria.getOrderWrapper();
-        CriteriaHelper.addDistinctIdAndOrderProjections(criteria, orderWrapper);
-        boolean hasOrder = orderWrapper != null;
+        Criteria criteria = getCriteriaWithAliases(searchFilter);
+        HibernateWrapperToCriteriaMapper.addCriterionWrappers(criteria, searchFilter);
+        Order order = searchFilter.getOrderWrapper();
+        PagingServiceHelper.addDistinctIdAndOrderProjections(criteria, order);
+        boolean hasOrder = order != null;
         //First retrieve distinct list of ids
         List result = criteria.setFirstResult(firstResultIndex).setMaxResults(maxResults).list();
-        List<Object> entityIds = CriteriaHelper.getIdsFromResultSet(hasOrder, result);
+        List<Object> entityIds = PagingServiceHelper.getIdsFromResultSet(hasOrder, result);
         if (CollectionUtils.isEmpty(entityIds)) {
             logTimer.exit("returning 0 entities");
             return new ArrayList<T>();
         }
         //Then return entities with ids in list
-        criteria = getCriteriaWithAliases(searchCriteria).add(Restrictions.in("id", entityIds));
+        criteria = getCriteriaWithAliases(searchFilter).add(Restrictions.in("id", entityIds));
         if (hasOrder) {
-            criteria.addOrder(orderWrapper.get());
+            criteria.addOrder(order.get());
         }
         criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
         List<T> entities = criteria.list();
@@ -68,10 +65,10 @@ public class PagingService<T> {
         return entities;
     }
 
-    private Criteria getCriteriaWithAliases(SearchCriteria searchCriteria) {
+    private Criteria getCriteriaWithAliases(SearchFilter searchFilter) {
 
-        Criteria criteria = getSession().createCriteria(searchCriteria.getType());
-        List<AliasUtils.SubAlias> aliasesForQuery = HibernateCriterionRetriever.getDistinctAliases(searchCriteria);
+        Criteria criteria = getSession().createCriteria(searchFilter.getType());
+        List<AliasUtils.SubAlias> aliasesForQuery = AliasRetriever.getDistinctAliases(searchFilter);
 
         for (AliasUtils.SubAlias alias : aliasesForQuery) {
             criteria.createAlias(alias.getPath(), alias.getName(), alias.getJoinType());
@@ -80,11 +77,11 @@ public class PagingService<T> {
     }
 
     @Transactional(readOnly = true)
-    public <T> int count(SearchCriteria searchCriteria) {
-        LogTimer logTimer = new LogTimer().enter("page count start for entity {}", searchCriteria.getType().getSimpleName());
-        Criteria criteria = getCriteriaWithAliases(searchCriteria);
-        CriteriaHelper.addCountDistinctIdProjections(criteria);
-        HibernateWrapperToCriteriaMapper.addCriterionWrappers(criteria, searchCriteria);
+    public <T> int count(SearchFilter searchFilter) {
+        LogTimer logTimer = new LogTimer().enter("page count start for entity {}", searchFilter.getType().getSimpleName());
+        Criteria criteria = getCriteriaWithAliases(searchFilter);
+        PagingServiceHelper.addCountDistinctIdProjections(criteria);
+        HibernateWrapperToCriteriaMapper.addCriterionWrappers(criteria, searchFilter);
         Long count = (Long) criteria.uniqueResult();
         int intCount = count.intValue();
         logTimer.exit("search count is {}", count);

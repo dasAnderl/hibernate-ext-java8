@@ -1,9 +1,9 @@
 package com.anderl.hibernate.ext;
 
 
-import com.anderl.hibernate.ext.wrappers.CriterionWrapper;
-import com.anderl.hibernate.ext.wrappers.OrCriterionWrapper;
-import com.anderl.hibernate.ext.wrappers.OrderWrapper;
+import com.anderl.hibernate.ext.wrappers.Filter;
+import com.anderl.hibernate.ext.wrappers.OrFilter;
+import com.anderl.hibernate.ext.wrappers.Order;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
@@ -22,17 +22,17 @@ import java.util.stream.Collectors;
  * <p/>
  * HibernateCriterionRetriever.getAllOrdersFor(searchcontroller);
  */
-public class HibernateCriterionRetriever {
+public class AliasRetriever {
 
-    public static List<AliasUtils.SubAlias> getDistinctAliases(SearchCriteria searchCriteria) {
+    public static List<AliasUtils.SubAlias> getDistinctAliases(SearchFilter searchFilter) {
 
         List<AliasUtils.SubAlias> aliasesNotNull = new ArrayList<AliasUtils.SubAlias>();
-        aliasesNotNull = addAliasesForWrappers(searchCriteria.getCriterions(), aliasesNotNull);
-        aliasesNotNull = addAliasesForOrWrappers(searchCriteria.getOrCriterions(), aliasesNotNull);
+        aliasesNotNull = addAliasesForWrappers(searchFilter.getCriterions(), aliasesNotNull);
+        aliasesNotNull = addAliasesForOrWrappers(searchFilter.getOrCriterions(), aliasesNotNull);
 
-        OrderWrapper orderWrapper = searchCriteria.getOrderWrapper();
-        if (orderWrapper != null && orderWrapper.getCriterion().getAlias() != null) {
-            aliasesNotNull.addAll(orderWrapper.getCriterion().getAlias().getSubAliases());
+        Order order = searchFilter.getOrderWrapper();
+        if (order != null && order.getCriterion().getAlias() != null) {
+            aliasesNotNull.addAll(order.getCriterion().getAlias().getSubAliases());
         }
 
         List<AliasUtils.SubAlias> distinctAliases = Lists.newArrayList();
@@ -49,16 +49,16 @@ public class HibernateCriterionRetriever {
         return new ArrayList<>(distinctAliases);
     }
 
-    private static List<AliasUtils.SubAlias> addAliasesForOrWrappers(List<OrCriterionWrapper> orWrappers, List<AliasUtils.SubAlias> aliases) {
+    private static List<AliasUtils.SubAlias> addAliasesForOrWrappers(List<OrFilter> orWrappers, List<AliasUtils.SubAlias> aliases) {
 
         if (orWrappers == null) return Lists.newArrayList();
-        List<List<CriterionWrapper>> wrappersLists = orWrappers.stream().map(orWrapper -> orWrapper.getHibernateCriterionWrappers()).collect(Collectors.toList());
+        List<List<Filter>> wrappersLists = orWrappers.stream().map(orWrapper -> orWrapper.getHibernateCriterionWrappers()).collect(Collectors.toList());
 
-        List<CriterionWrapper> wrappers = Lists.newArrayList(Iterables.concat(wrappersLists));
+        List<Filter> wrappers = Lists.newArrayList(Iterables.concat(wrappersLists));
         return addAliasesForWrappers(wrappers, aliases);
     }
 
-    public static List<AliasUtils.SubAlias> addAliasesForWrappers(List<CriterionWrapper> wrappers, List<AliasUtils.SubAlias> aliases) {
+    public static List<AliasUtils.SubAlias> addAliasesForWrappers(List<Filter> wrappers, List<AliasUtils.SubAlias> aliases) {
 
         if (wrappers == null) return Lists.newArrayList();
         List<AliasUtils.Criterion> criterions = wrappers.stream().map(wrapper -> wrapper.getAliasCriterion()).collect(Collectors.toList());

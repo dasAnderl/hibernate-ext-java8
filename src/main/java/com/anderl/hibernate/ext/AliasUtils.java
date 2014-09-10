@@ -12,32 +12,12 @@ import java.util.List;
  */
 public class AliasUtils {
 
-    public enum Alias {
+    public interface Alias {
 
-        SUBENTITIES("subEntities", JoinType.LEFT_OUTER_JOIN);
+        public String getFieldPath();
+        public JoinType getJoinType();
 
-        private final String fieldPath;
-        private final JoinType joinType;
-
-        Alias(String fieldPath, JoinType joinType) {
-            this.fieldPath = fieldPath;
-            this.joinType = joinType;
-        }
-
-        public String getFieldPath() {
-            return fieldPath;
-        }
-
-        public JoinType getJoinType() {
-            return joinType;
-        }
-
-        /**
-         * For each nested property we need an (sub)alias.
-         * E.g. "foo.bar" results in Alias for foo and one alias for bar (which bases on the foo alias)
-         * @return
-         */
-        public List<SubAlias> getSubAliases() {
+        default List<SubAlias> getSubAliases() {
             List<SubAlias> subAliases = new ArrayList<>();
             String aliasPath = "";
             for (String s : getFieldPath().split("\\.")) {
@@ -48,7 +28,6 @@ public class AliasUtils {
                 subAliases.add(new SubAlias(aliasPath, s, this.getJoinType()));
             }
             return subAliases;
-
         }
     }
 

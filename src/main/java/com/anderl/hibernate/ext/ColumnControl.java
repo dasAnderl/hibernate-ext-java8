@@ -11,9 +11,9 @@ public interface ColumnControl<T> {
 
     public void setValue(T value);
 
-    public boolean isVisible();
+    public boolean isEnabled();
 
-    public void setVisible(boolean active);
+    public void setEnabled(boolean active);
 
     public String getSortingProperty();
 

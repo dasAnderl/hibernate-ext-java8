@@ -4,10 +4,6 @@ package com.anderl.hibernate.ext.wrappers;
 import com.anderl.hibernate.ext.AliasUtils;
 import com.anderl.hibernate.ext.ColumnControl;
 import com.anderl.hibernate.ext.RestrictionsExt;
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.Lists;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,9 +15,9 @@ import java.util.stream.Collectors;
 /**
  * Created by ga2unte on 12/2/13.
  * <p/>
- * An  {@link OrCriterionWrapper} contains multiple  {@link CriterionWrapper}.
+ * An  {@link OrFilter} contains multiple  {@link Filter}.
  * They will be written to a map and later cocatenated with or.
- * Never use same property for two different {@link CriterionWrapper}s.
+ * Never use same property for two different {@link Filter}s.
  * To do this use {@link com.anderl.hibernate.ext.RestrictionsExt}in.
  * <p/>
  * Example: You want to have a Criterion which selects entity which id "is not null OR name is null"
@@ -34,54 +30,54 @@ import java.util.stream.Collectors;
  * would give a List with one hibernate {@link org.hibernate.criterion.Restrictions}:
  * Restrictions.and(Restrictions.or(Restrictions.isNotNull("id"), Restrictions.isNull("name")))
  * <p/>
- * In xhtml you can access the values of the contained {@link CriterionWrapper},
+ * In xhtml you can access the values of the contained {@link Filter},
  * by calling #{<controller>.<myHibernateCriterionOrWrapper>.getByProperty("id").value}
  */
-public class OrCriterionWrapper implements ColumnControl {
+public class OrFilter implements ColumnControl {
 
-    private static Logger log = LoggerFactory.getLogger(OrCriterionWrapper.class);
+    private static Logger log = LoggerFactory.getLogger(OrFilter.class);
 
     //Defines how the subcriterias are appended to the query:
     // true -> ... AND (subcriteria)
     // false -> ... OR (subcriteria)
     private boolean outerConcatAnd = true;
     private boolean innerAndConcat;
-    private CriterionWrapper firstWrapper;
+    private Filter firstWrapper;
     private String id;
     private boolean visible;
-    private Map<String, CriterionWrapper<Object>> wrappersMappedByProperty = new HashMap<>();
+    private Map<String, Filter<Object>> wrappersMappedByProperty = new HashMap<>();
 
-    private OrCriterionWrapper(boolean outerConcatAnd, boolean innerAndConcat, CriterionWrapper... criterionWrappers) {
+    private OrFilter(boolean outerConcatAnd, boolean innerAndConcat, Filter... filters) {
         this.outerConcatAnd = outerConcatAnd;
         this.innerAndConcat = innerAndConcat;
         //Attention: varargs order is reversed
-        for (CriterionWrapper criterionWrapper : criterionWrappers) {
-            firstWrapper = criterionWrapper;
+        for (Filter filter : filters) {
+            firstWrapper = filter;
             this.id = "multiCriterion" + firstWrapper.getAliasCriterion().getCriterionPath().replace(".", "");
-            String property = criterionWrapper.getAliasCriterion().getCriterionPath();
+            String property = filter.getAliasCriterion().getCriterionPath();
             if (wrappersMappedByProperty.containsKey(property)) {
                 log.error("{} used with same property more than once. use {} instead. You query will not return correct results", this.getClass().getSimpleName(), RestrictionsExt.in);
                 this.wrappersMappedByProperty = new HashMap<>();
                 continue;
             }
-            wrappersMappedByProperty.put(property, criterionWrapper);
+            wrappersMappedByProperty.put(property, filter);
         }
     }
 
-    public static OrCriterionWrapper andOr(CriterionWrapper... criterionWrappers) {
-        return new OrCriterionWrapper(true, false, criterionWrappers);
+    public static OrFilter andOr(Filter... filters) {
+        return new OrFilter(true, false, filters);
     }
 
-    public static OrCriterionWrapper orOr(CriterionWrapper... criterionWrappers) {
-        return new OrCriterionWrapper(false, false, criterionWrappers);
+    public static OrFilter orOr(Filter... filters) {
+        return new OrFilter(false, false, filters);
     }
 
-    public static OrCriterionWrapper andAnd(CriterionWrapper... criterionWrappers) {
-        return new OrCriterionWrapper(true, true, criterionWrappers);
+    public static OrFilter andAnd(Filter... filters) {
+        return new OrFilter(true, true, filters);
     }
 
-    public static OrCriterionWrapper orAnd(CriterionWrapper... criterionWrappers) {
-        return new OrCriterionWrapper(false, true, criterionWrappers);
+    public static OrFilter orAnd(Filter... filters) {
+        return new OrFilter(false, true, filters);
     }
 
     public AliasUtils.Criterion getCriterionMapper() {
@@ -90,9 +86,9 @@ public class OrCriterionWrapper implements ColumnControl {
 
     public org.hibernate.criterion.Criterion getCriterion() {
 
-        Collection<CriterionWrapper<Object>> validCriterionWrappers = getWrappersMappedByProperty().values().stream().filter(wrapper -> wrapper.isValid()).collect(Collectors.toList());
+        Collection<Filter<Object>> validFilters = getWrappersMappedByProperty().values().stream().filter(wrapper -> wrapper.isValid()).collect(Collectors.toList());
 
-        List<org.hibernate.criterion.Criterion> validCriterions = validCriterionWrappers.stream().map(wrapper ->wrapper.getCriterion()).collect(Collectors.toList());
+        List<org.hibernate.criterion.Criterion> validCriterions = validFilters.stream().map(wrapper ->wrapper.getCriterion()).collect(Collectors.toList());
 
         if (CollectionUtils.isEmpty(validCriterions)) return null;
         org.hibernate.criterion.Criterion[] predicates = validCriterions.toArray(new org.hibernate.criterion.Criterion[validCriterions.size()]);
@@ -125,7 +121,7 @@ public class OrCriterionWrapper implements ColumnControl {
     }
 
     /**
-     * Return property of the first {@link CriterionWrapper}
+     * Return property of the first {@link Filter}
      *
      * @return
      */
@@ -148,17 +144,17 @@ public class OrCriterionWrapper implements ColumnControl {
         return id;
     }
 
-    public Map<String, CriterionWrapper<Object>> getWrappersMappedByProperty() {
+    public Map<String, Filter<Object>> getWrappersMappedByProperty() {
         return wrappersMappedByProperty;
     }
 
     @Override
-    public boolean isVisible() {
+    public boolean isEnabled() {
         return visible;
     }
 
     @Override
-    public void setVisible(boolean active) {
+    public void setEnabled(boolean active) {
         this.visible = active;
     }
 
@@ -167,7 +163,7 @@ public class OrCriterionWrapper implements ColumnControl {
         return firstWrapper.getLabelMsgKey();
     }
 
-    public List<CriterionWrapper> getHibernateCriterionWrappers() {
+    public List<Filter> getHibernateCriterionWrappers() {
         return CollectionUtils.isEmpty(getWrappersMappedByProperty().values()) ? new ArrayList<>()
                 : new ArrayList<>(getWrappersMappedByProperty().values());
     }

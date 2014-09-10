@@ -14,28 +14,28 @@ import java.util.Collection;
 /**
  * Created by ga2unte on 12/2/13.
  */
-public class CriterionWrapper<T> implements ColumnControl<T> {
+public class Filter<T> implements ColumnControl<T> {
 
     private T value = null;
-    private RestrictionsExt restrictionsExt;
-    private boolean visible = true;
-    private String labelMsgKey = "label or msg key missing";
-    private String id;
-    private AliasUtils.Criterion criterion;
+    private final RestrictionsExt restrictionsExt;
+    private boolean enabled = true;
+    private final String labelMsgKey;
+    private final String id;
+    private final AliasUtils.Criterion criterion;
 
     private String getId(AliasUtils.Criterion criterion) {
         return criterion.getFieldPath().replace(".", "");
     }
 
-    public CriterionWrapper(AliasUtils.Criterion criterion, RestrictionsExt restrictionsExt, boolean visible, String labelMsgKey) {
+    public Filter(AliasUtils.Criterion criterion, RestrictionsExt restrictionsExt, boolean enabled, String labelMsgKey) {
         this.criterion = criterion;
         this.restrictionsExt = restrictionsExt;
-        this.visible = visible;
+        this.enabled = enabled;
         this.labelMsgKey = labelMsgKey;
         id = getId(criterion);
     }
 
-    public CriterionWrapper(AliasUtils.Criterion criterion, RestrictionsExt restrictionsExt, T value) {
+    public Filter(AliasUtils.Criterion criterion, RestrictionsExt restrictionsExt, T value) {
         this(criterion, restrictionsExt, true, "label or msg key missing");
         this.value = value;
     }
@@ -102,13 +102,13 @@ public class CriterionWrapper<T> implements ColumnControl<T> {
     }
 
     @Override
-    public boolean isVisible() {
-        return visible;
+    public boolean isEnabled() {
+        return enabled;
     }
 
     @Override
-    public void setVisible(boolean active) {
-        this.visible = active;
+    public void setEnabled(boolean active) {
+        this.enabled = active;
     }
 
     @Override

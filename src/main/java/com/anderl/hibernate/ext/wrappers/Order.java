@@ -2,34 +2,33 @@ package com.anderl.hibernate.ext.wrappers;
 
 
 import com.anderl.hibernate.ext.AliasUtils;
-import org.hibernate.criterion.Order;
 
 /**
  * Created by ga2unte on 12/2/13.
  */
-public class OrderWrapper {
+public class Order {
 
     private boolean asc = true;
     private AliasUtils.Criterion criterion;
 
-    private OrderWrapper(AliasUtils.Criterion criterion, boolean asc) {
+    private Order(AliasUtils.Criterion criterion, boolean asc) {
         this.criterion = criterion;
         this.asc = asc;
     }
 
-    public static OrderWrapper asc(AliasUtils.Criterion criterion) {
-        return new OrderWrapper(criterion, true);
+    public static Order asc(AliasUtils.Criterion criterion) {
+        return new Order(criterion, true);
     }
 
-    public static OrderWrapper desc(AliasUtils.Criterion criterion) {
-        return new OrderWrapper(criterion, false);
+    public static Order desc(AliasUtils.Criterion criterion) {
+        return new Order(criterion, false);
     }
 
-    public Order get() {
+    public org.hibernate.criterion.Order get() {
         if (asc) {
-            return Order.asc(criterion.getCriterionPath());
+            return org.hibernate.criterion.Order.asc(criterion.getCriterionPath());
         }
-        return Order.desc(criterion.getCriterionPath());
+        return org.hibernate.criterion.Order.desc(criterion.getCriterionPath());
     }
 
     public void set(AliasUtils.Criterion criterion, boolean asc) {

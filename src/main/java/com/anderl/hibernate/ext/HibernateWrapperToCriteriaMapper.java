@@ -1,8 +1,8 @@
 package com.anderl.hibernate.ext;
 
-import com.anderl.hibernate.ext.wrappers.CriterionWrapper;
-import com.anderl.hibernate.ext.wrappers.OrCriterionWrapper;
-import com.anderl.hibernate.ext.wrappers.OrderWrapper;
+import com.anderl.hibernate.ext.wrappers.Filter;
+import com.anderl.hibernate.ext.wrappers.OrFilter;
+import com.anderl.hibernate.ext.wrappers.Order;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
@@ -17,13 +17,13 @@ import java.util.stream.Collectors;
 public class HibernateWrapperToCriteriaMapper {
 
     public static Criteria addCriterionWrappers(Criteria criteria,
-                                                List<CriterionWrapper> criterionWrappers,
-                                                List<OrCriterionWrapper> criterionOrWrappers,
-                                                OrderWrapper orderWrapper) {
+                                                List<Filter> filters,
+                                                List<OrFilter> criterionOrWrappers,
+                                                Order order) {
         Criterion andCriterion = null;
-        if (!CollectionUtils.isEmpty(criterionWrappers)) {
+        if (!CollectionUtils.isEmpty(filters)) {
 
-            List<Criterion> criterions = criterionWrappers.stream().map(wrapper -> wrapper.getCriterion()).collect(Collectors.toList());
+            List<Criterion> criterions = filters.stream().map(wrapper -> wrapper.getCriterion()).collect(Collectors.toList());
 
             andCriterion = Restrictions.and(criterions.toArray(new Criterion[criterions.size()]));
         }
@@ -43,14 +43,14 @@ public class HibernateWrapperToCriteriaMapper {
             }
         }
         // We only add orders, if they are present and this is not a count query
-        if (orderWrapper != null) {
-            criteria.addOrder(orderWrapper.get());
+        if (order != null) {
+            criteria.addOrder(order.get());
         }
         return criteria;
     }
 
     public static Criteria addCriterionWrappers(Criteria criteria,
-                                                SearchCriteria searchCriteria) {
-        return addCriterionWrappers(criteria, searchCriteria.getCriterions(), searchCriteria.getOrCriterions(), searchCriteria.getOrderWrapper());
+                                                SearchFilter searchFilter) {
+        return addCriterionWrappers(criteria, searchFilter.getCriterions(), searchFilter.getOrCriterions(), searchFilter.getOrderWrapper());
     }
 }

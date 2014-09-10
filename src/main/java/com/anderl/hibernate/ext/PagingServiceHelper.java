@@ -1,6 +1,6 @@
 package com.anderl.hibernate.ext;
 
-import com.anderl.hibernate.ext.wrappers.OrderWrapper;
+import com.anderl.hibernate.ext.wrappers.Order;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * Created by ga2unte on 12/19/13.
  */
-public class CriteriaHelper {
+public class PagingServiceHelper {
 
     public static List<Object> getIdsFromResultSet(boolean hasOrder, List result) {
         List<Object> ids = new ArrayList<Object>();
@@ -49,17 +49,17 @@ public class CriteriaHelper {
      * BE VERY CAREFUL CHANGING THIS.
      *
      * @param criteria
-     * @param orderWrapper
+     * @param order
      * @return
      */
-    public static void addDistinctIdAndOrderProjections(Criteria criteria, OrderWrapper orderWrapper) {
+    public static void addDistinctIdAndOrderProjections(Criteria criteria, Order order) {
 
         ProjectionList projectionList = Projections.projectionList();
         projectionList
                 .add(Projections.distinct
                         (Projections.property("id")));
-        if (orderWrapper != null) {
-            projectionList.add(Projections.property(orderWrapper.getCriterion().getCriterionPath()));
+        if (order != null) {
+            projectionList.add(Projections.property(order.getCriterion().getCriterionPath()));
         }
         criteria.setProjection(projectionList);
     }
