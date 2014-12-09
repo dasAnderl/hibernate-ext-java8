@@ -14,8 +14,8 @@ repositories {
     mavenCentral()
 }
 
-def versionSpring = "4.1.0.RELEASE"
 def versionSpringBoot = "1.1.6.RELEASE"
+def versionSpring = "4.1.0.RELEASE"
 
 dependencies {
     compile "org.hibernate:hibernate-core:4.3.6.Final",
@@ -47,28 +47,20 @@ task wrapper(type: Wrapper) {
 
 uploadArchives {
     repositories.mavenDeployer {
+        //needed otherwise generated pom is illegal
+        pom.project {
+            parent {
+                groupId 'org.springframework.boot'
+                artifactId 'spring-boot-starter-parent'
+                version "$versionSpringBoot"
+            }
+        }
         if (version.contains("RELEASE")) {
             repository(url: "file://$mavenRepoDir/releases")
         } else {
             repository(url: "file://$mavenRepoDir/snapshots")
         }
-
     }
-}
-
-task gitAddMavenRepoWindows(dependsOn: 'uploadArchives', type:Exec) {
-    workingDir mavenRepoDir
-    commandLine 'cmd', '/c', 'C:\\Program Files (x86)\\Git\\bin\\git.exe', 'add', '--all'
-}
-
-task gitCommitMavenRepoWindows(dependsOn: 'gitAddMavenRepoWindows', type:Exec) {
-    workingDir mavenRepoDir
-    commandLine 'cmd', '/c', 'C:\\Program Files (x86)\\Git\\bin\\git.exe', 'commit', '-m', "commited_version_$version"
-}
-
-task gitPushMavenRepoWindows(dependsOn: 'gitCommitMavenRepoWindows', type:Exec) {
-    workingDir mavenRepoDir
-    commandLine 'cmd', '/c', 'C:\\Program Files (x86)\\Git\\bin\\git.exe', 'push', 'origin', 'master'
 }
 
 task gitAddMavenRepo(dependsOn: 'uploadArchives', type:Exec) {
@@ -85,3 +77,18 @@ task gitPushMavenRepo(dependsOn: 'gitCommitMavenRepo', type:Exec) {
     workingDir mavenRepoDir
     commandLine 'git', 'push', 'origin', 'master'
 }
+//
+//task gitAddMavenRepoWindows(dependsOn: 'uploadArchives', type:Exec) {
+//    workingDir mavenRepoDir
+//    commandLine 'cmd', '/c', 'C:\\Program Files (x86)\\Git\\bin\\git.exe', 'add', '--all'
+//}
+//
+//task gitCommitMavenRepoWindows(dependsOn: 'gitAddMavenRepoWindows', type:Exec) {
+//    workingDir mavenRepoDir
+//    commandLine 'cmd', '/c', 'C:\\Program Files (x86)\\Git\\bin\\git.exe', 'commit', '-m', "commited_version_$version"
+//}
+//
+//task gitPushMavenRepoWindows(dependsOn: 'gitCommitMavenRepoWindows', type:Exec) {
+//    workingDir mavenRepoDir
+//    commandLine 'cmd', '/c', 'C:\\Program Files (x86)\\Git\\bin\\git.exe', 'push', 'origin', 'master'
+//}

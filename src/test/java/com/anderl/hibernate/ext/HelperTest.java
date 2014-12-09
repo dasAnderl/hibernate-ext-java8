@@ -1,10 +1,9 @@
 package com.anderl.hibernate.ext;
 
 import com.anderl.hibernate.ext.helper.Helper;
-import com.anderl.hibernate.ext.test.domain.SubEntity;
 import com.anderl.hibernate.ext.test.domain.Entity;
-import org.hamcrest.Matchers;
-import org.junit.Assert;
+import com.anderl.hibernate.ext.test.domain.SubEntity;
+import com.anderl.hibernate.ext.wrappers.Order;
 import org.junit.Test;
 
 import java.util.List;
@@ -18,9 +17,19 @@ import static org.junit.Assert.*;
  */
 public class HelperTest {
 
-    private final class ReflectionTestClass {
+    private final class ReflectionTestClass implements SearchFilter<Entity> {
         Entity entity;
         Set<Entity> testEntities;
+
+        @Override
+        public Order getOrderWrapper() {
+            return null;
+        }
+
+        @Override
+        public PagingHelper getPagingHelper() {
+            return null;
+        }
     }
 
     @Test
@@ -40,7 +49,7 @@ public class HelperTest {
 
     @Test
     public void testGetGenericInterfaceType() throws Exception {
-        assertEquals(Helper.getGenericInterfaceType(HibernateInTest.TestSearchFilter.class, 0), Entity.class);
+        assertEquals(Helper.getGenericInterfaceType(ReflectionTestClass.class, 0), Entity.class);
     }
 
     public final class Dummy {
