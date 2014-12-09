@@ -1,10 +1,9 @@
 package com.anderl.hibernate.ext.test.domain;
 
-import com.google.common.collect.Lists;
-
 import javax.persistence.CascadeType;
 import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -16,7 +15,7 @@ public class Entity extends _AbstractEntity {
     private String name;
     private int age;
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "entity", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<SubEntity> subEntities = Lists.newArrayList();
+    private List<SubEntity> subEntities = new ArrayList<>();
 
     public String getName() {
         return name;

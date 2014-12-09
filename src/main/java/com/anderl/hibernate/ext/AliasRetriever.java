@@ -4,8 +4,6 @@ package com.anderl.hibernate.ext;
 import com.anderl.hibernate.ext.wrappers.Filter;
 import com.anderl.hibernate.ext.wrappers.OrFilter;
 import com.anderl.hibernate.ext.wrappers.Order;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +33,7 @@ public class AliasRetriever {
             aliasesNotNull.addAll(order.getCriterion().getAlias().getSubAliases());
         }
 
-        List<AliasUtils.SubAlias> distinctAliases = Lists.newArrayList();
+        List<AliasUtils.SubAlias> distinctAliases = new ArrayList<>();
         for (AliasUtils.SubAlias subAlias : aliasesNotNull) {
             boolean missing = true;
             for (AliasUtils.SubAlias distinct : distinctAliases) {
@@ -51,16 +49,17 @@ public class AliasRetriever {
 
     private static List<AliasUtils.SubAlias> addAliasesForOrWrappers(List<OrFilter> orWrappers, List<AliasUtils.SubAlias> aliases) {
 
-        if (orWrappers == null) return Lists.newArrayList();
+        if (orWrappers == null) return new ArrayList<>();
         List<List<Filter>> wrappersLists = orWrappers.stream().map(orWrapper -> orWrapper.getHibernateCriterionWrappers()).collect(Collectors.toList());
 
-        List<Filter> wrappers = Lists.newArrayList(Iterables.concat(wrappersLists));
-        return addAliasesForWrappers(wrappers, aliases);
+        final List<Filter> filters = wrappersLists.stream().flatMap(innerList -> innerList.stream()).collect(Collectors.toList());
+
+        return addAliasesForWrappers(filters, aliases);
     }
 
     public static List<AliasUtils.SubAlias> addAliasesForWrappers(List<Filter> wrappers, List<AliasUtils.SubAlias> aliases) {
 
-        if (wrappers == null) return Lists.newArrayList();
+        if (wrappers == null) return new ArrayList<>();
         List<AliasUtils.Criterion> criterions = wrappers.stream().map(wrapper -> wrapper.getAliasCriterion()).collect(Collectors.toList());
 
         for (AliasUtils.Criterion criterion : criterions) {

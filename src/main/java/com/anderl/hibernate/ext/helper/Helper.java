@@ -1,6 +1,5 @@
 package com.anderl.hibernate.ext.helper;
 
-import com.google.common.collect.Lists;
 import org.springframework.util.ReflectionUtils;
 import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
@@ -8,6 +7,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -49,7 +49,7 @@ public class Helper {
 
     public static boolean fieldExistsRecursive(Class clazz, String fieldPath) throws IllegalArgumentException{
         Class currentClass = clazz;
-        ArrayList<String> fieldNames = Lists.newArrayList(fieldPath.split("\\."));
+        List<String> fieldNames = Arrays.asList(fieldPath.split("\\."));
         for(String fieldName : fieldNames)    {
             Field field = ReflectionUtils.findField(currentClass, fieldName);
             if (field != null) {

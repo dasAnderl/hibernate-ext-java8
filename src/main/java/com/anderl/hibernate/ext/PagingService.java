@@ -65,17 +65,6 @@ public class PagingService<T> {
         return entities;
     }
 
-    private Criteria getCriteriaWithAliases(SearchFilter searchFilter) {
-
-        Criteria criteria = getSession().createCriteria(searchFilter.getType());
-        List<AliasUtils.SubAlias> aliasesForQuery = AliasRetriever.getDistinctAliases(searchFilter);
-
-        for (AliasUtils.SubAlias alias : aliasesForQuery) {
-            criteria.createAlias(alias.getPath(), alias.getName(), alias.getJoinType());
-        }
-        return criteria;
-    }
-
     @Transactional(readOnly = true)
     public <T> int count(SearchFilter searchFilter) {
         LogTimer logTimer = new LogTimer().enter("count start for entity {}", searchFilter.getType().getSimpleName());
@@ -86,6 +75,17 @@ public class PagingService<T> {
         int intCount = count.intValue();
         logTimer.exit("search count is {}", count);
         return intCount;
+    }
+
+    private Criteria getCriteriaWithAliases(SearchFilter searchFilter) {
+
+        Criteria criteria = getSession().createCriteria(searchFilter.getType());
+        List<AliasUtils.SubAlias> aliasesForQuery = AliasRetriever.getDistinctAliases(searchFilter);
+
+        for (AliasUtils.SubAlias alias : aliasesForQuery) {
+            criteria.createAlias(alias.getPath(), alias.getName(), alias.getJoinType());
+        }
+        return criteria;
     }
 }
 

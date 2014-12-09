@@ -86,8 +86,8 @@ class HibernateExtTestBase extends groovy.util.GroovyTestCase {
         filter.ageFilter.enabled = false
         filter.subNameFilter.enabled = false
         filter.orNameFilter = OrFilter.orOr(
-                new Filter<String>(new Criterion("name", SUBENTITIES), RestrictionsExt.in, [DomainProvider.name1, DomainProvider.name2]),
-                new Filter<String>(new Criterion("age", SUBENTITIES), RestrictionsExt.equal, DomainProvider.age3)
+                new Filter<String>(Criterion.get("name", SUBENTITIES), RestrictionsExt.in, [DomainProvider.name1, DomainProvider.name2]),
+                new Filter<String>(Criterion.get("age", SUBENTITIES), RestrictionsExt.equal, DomainProvider.age3)
         );
         def count = pagingService.count(filter)
         assertThat("should return all entities", count, Matchers.is(entities.size()))
@@ -99,7 +99,7 @@ class HibernateExtTestBase extends groovy.util.GroovyTestCase {
         filter.ageFilter.enabled = false
         filter.subNameFilter.enabled = false
         filter.orNameFilter = OrFilter.orOr(
-                new Filter<String>(new Criterion("name", SUBENTITIES), RestrictionsExt.in, [DomainProvider.name1, DomainProvider.name2]),
+                new Filter<String>(Criterion.get("name", SUBENTITIES), RestrictionsExt.in, [DomainProvider.name1, DomainProvider.name2]),
         );
         def count = pagingService.count(filter)
         assertThat("should return two entities", count, Matchers.is(2))

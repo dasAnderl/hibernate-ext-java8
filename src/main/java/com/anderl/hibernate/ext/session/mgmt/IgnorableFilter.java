@@ -16,9 +16,6 @@
 
 package com.anderl.hibernate.ext.session.mgmt;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
@@ -31,10 +28,11 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * This is an abstract only performing logic for urls which are not defined in its init ignoredUrls parameter
- * <p/>
+ * <p>
  * <init-param>
  * <param-name>ignoredUrls</param-name>
  * <param-value>url1, url2, url3</param-value>
@@ -46,20 +44,15 @@ public abstract class IgnorableFilter extends OncePerRequestFilter {
 
     private List<String> ignoredUrls;
 
-    public void initIgnoredUrls() {
-
-        if (ignoredUrls != null) return;
-        String ignoredUrlsString = getFilterConfig().getInitParameter("ignoredUrls");
-        if (StringUtils.isEmpty(ignoredUrlsString)) return;
-        this.ignoredUrls = Arrays.asList(ignoredUrlsString.split(","));
-        this.ignoredUrls = Lists.newArrayList(
-                Collections2.filter(ignoredUrls, new Predicate<String>() {
-                    @Override
-                    public boolean apply(String ignoredUrl) {
-                        return !StringUtils.isEmpty(ignoredUrl);
-                    }
-                })
-        );
+    {
+        final String ignoredUrlsString = getFilterConfig().getInitParameter("ignoredUrls");
+        if (ignoredUrlsString != null && !StringUtils.isEmpty(ignoredUrlsString)) {
+            this.ignoredUrls = Arrays.asList(ignoredUrlsString.split(","))
+                    .stream()
+                    .filter(url -> !StringUtils.isEmpty(url))
+                    .map(url -> url = url.trim())
+                    .collect(Collectors.toList());
+        }
     }
 
     @Override
@@ -78,7 +71,7 @@ public abstract class IgnorableFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         if (isIgnoredUrl(request)) {
-            log.debug("{} has been ignored. see init params in web.xml", request.getServletPath());
+            log.debug("{} has been ignored. see IgnorableFilter in web.xml", request.getServletPath());
             filterChain.doFilter(request, response);
         } else {
             doFilterUnignored(request, response, filterChain);
@@ -89,11 +82,10 @@ public abstract class IgnorableFilter extends OncePerRequestFilter {
             HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException;
 
-    protected boolean isIgnoredUrl(HttpServletRequest request) {
-        String currentUrl = request.getServletPath();
-        initIgnoredUrls();
+    private boolean isIgnoredUrl(HttpServletRequest request) {
+        final String currentUrl = request.getServletPath();
         if (ignoredUrls == null) return false;
-        for (String ignoredUrl : ignoredUrls) {
+        for (final String ignoredUrl : ignoredUrls) {
             if (currentUrl.startsWith(ignoredUrl)) return true;
         }
         return false;

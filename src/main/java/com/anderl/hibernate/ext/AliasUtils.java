@@ -60,12 +60,20 @@ public class AliasUtils {
         private final Alias alias;
         private final String property;
 
-        public Criterion(String property, Alias alias) {
+        public static Criterion get(String property, Alias alias) {
+            return new Criterion(property, alias);
+        }
+
+        public static Criterion get(String property) {
+            return new Criterion(property);
+        }
+
+        private Criterion(String property, Alias alias) {
             this.property = property;
             this.alias = alias;
         }
 
-        public Criterion(String property) {
+        private Criterion(String property) {
             this.property = property;
             alias = null;
         }
@@ -84,7 +92,6 @@ public class AliasUtils {
         public String getFieldPath() {
             return alias == null ? property : alias.getFieldPath() + "." + property;
         }
-
 
     }
 }
