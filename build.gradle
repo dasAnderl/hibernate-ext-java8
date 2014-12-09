@@ -71,20 +71,22 @@ uploadArchives {
         } else {
             repository(url: "file://$mavenRepoDir/snapshots")
         }
-
-        exec { //git add
-            workingDir mavenRepoDir
-            commandLine 'git', 'add', '--all'
-        }
-        exec { //git commit
-            workingDir mavenRepoDir
-            commandLine 'git', 'commit', '-m', "commited_version_$version"
-        }
-        exec { //git push
-            workingDir mavenRepoDir
-            commandLine 'git', 'push', 'origin', 'master'
-        }
     }
+}
+
+task gitAddMavenRepo(dependsOn: 'uploadArchives', type:Exec) {
+    workingDir mavenRepoDir
+    commandLine 'git', 'add', '--all'
+}
+
+task gitCommitMavenRepo(dependsOn: 'gitAddMavenRepo', type:Exec) {
+    workingDir mavenRepoDir
+    commandLine 'git', 'commit', '-m', "commited_version_$version"
+}
+
+task gitPushMavenRepo(dependsOn: 'gitCommitMavenRepo', type:Exec) {
+    workingDir mavenRepoDir
+    commandLine 'git', 'push', 'origin', 'master'
 }
 
 //
