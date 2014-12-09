@@ -43,7 +43,7 @@ public class PagingService<T> {
         final int maxResults = searchFilter.getPagingHelper().getPageSize();
         LogTimer logTimer = new LogTimer().enter("page start firstResultIndex: {} maxResults {} for {}", firstResultIndex, maxResults, searchFilter.getType().getSimpleName());
         Criteria criteria = getCriteriaWithAliases(searchFilter);
-        HibernateWrapperToCriteriaMapper.addCriterionWrappers(criteria, searchFilter);
+        HibernateWrapperToCriteriaMapper.addCriterionWrappers(criteria, searchFilter, false);
         Order order = searchFilter.getOrderWrapper();
         PagingServiceHelper.addDistinctIdAndOrderProjections(criteria, order);
         boolean hasOrder = order != null;
@@ -81,7 +81,7 @@ public class PagingService<T> {
         LogTimer logTimer = new LogTimer().enter("count start for entity {}", searchFilter.getType().getSimpleName());
         Criteria criteria = getCriteriaWithAliases(searchFilter);
         PagingServiceHelper.addCountDistinctIdProjections(criteria);
-        HibernateWrapperToCriteriaMapper.addCriterionWrappers(criteria, searchFilter);
+        HibernateWrapperToCriteriaMapper.addCriterionWrappers(criteria, searchFilter, true);
         Long count = (Long) criteria.uniqueResult();
         int intCount = count.intValue();
         logTimer.exit("search count is {}", count);

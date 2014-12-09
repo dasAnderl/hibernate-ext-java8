@@ -1,9 +1,6 @@
 package com.anderl.hibernate.ext.helper;
 
-import com.anderl.hibernate.ext.wrappers.OrFilter;
 import com.google.common.collect.Lists;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.ReflectionUtils;
 import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
@@ -18,6 +15,9 @@ import java.util.List;
  * Created by ga2unte on 8.9.2014.
  */
 public class Helper {
+
+    private Helper() {
+    }
 
     public static <T> List<T> invokeGettersByReturnType(Class<T> clazz, Object object) {
         List<T> list = new ArrayList<>();

@@ -1,18 +1,17 @@
 package com.anderl.hibernate.ext.test.domain;
 
-import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 
 /**
  * Created by dasanderl on 07.09.14.
  */
-@Entity
+@javax.persistence.Entity
 public class SubEntity extends _AbstractEntity {
 
     private String name;
     private int age;
     @ManyToOne
-    private TestEntity testEntity;
+    private Entity entity;
 
     public String getName() {
         return name;
@@ -30,12 +29,12 @@ public class SubEntity extends _AbstractEntity {
         this.age = age;
     }
 
-    public TestEntity getTestEntity() {
-        return testEntity;
+    public Entity getEntity() {
+        return entity;
     }
 
-    public void setTestEntity(TestEntity testEntity) {
-        this.testEntity = testEntity;
+    public void setEntity(Entity entity) {
+        this.entity = entity;
     }
 
     @Override

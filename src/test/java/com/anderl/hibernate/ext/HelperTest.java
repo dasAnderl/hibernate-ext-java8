@@ -2,47 +2,48 @@ package com.anderl.hibernate.ext;
 
 import com.anderl.hibernate.ext.helper.Helper;
 import com.anderl.hibernate.ext.test.domain.SubEntity;
-import com.anderl.hibernate.ext.test.domain.TestEntity;
-import com.anderl.hibernate.ext.wrappers.Filter;
-import com.anderl.hibernate.ext.wrappers.OrFilter;
+import com.anderl.hibernate.ext.test.domain.Entity;
 import org.hamcrest.Matchers;
-import org.hibernate.criterion.Criterion;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.List;
 import java.util.Set;
+
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 
 /**
  * Created by dasanderl on 11.09.14.
  */
 public class HelperTest {
 
-    public class ClassWithSetField {
-        Set<TestEntity> testEntities;
+    private final class ReflectionTestClass {
+        Entity entity;
+        Set<Entity> testEntities;
     }
 
     @Test
     public void testFieldExistsRecursive() throws Exception {
-        Assert.assertTrue(Helper.fieldExistsRecursive(OrFilter.class, "firstWrapper.criterion.property"));
-        Assert.assertTrue(Helper.fieldExistsRecursive(TestEntity.class, "subEntities.age"));
-        Assert.assertTrue(Helper.fieldExistsRecursive(ClassWithSetField.class, "testEntities.subEntities.age"));
+        assertTrue(Helper.fieldExistsRecursive(ReflectionTestClass.class, "entity.subEntities.name"));
+        assertTrue(Helper.fieldExistsRecursive(ReflectionTestClass.class, "testEntities.subEntities.age"));
         try {
-            Helper.fieldExistsRecursive(ClassWithSetField.class, "testEntities.subEntities.thisFieldDoesNotExist");
+            Helper.fieldExistsRecursive(ReflectionTestClass.class, "testEntities.subEntities.thisFieldDoesNotExist");
             throw new Exception("method call before must throw "+IllegalArgumentException.class.getSimpleName());
         }   catch (IllegalArgumentException e) {
-            Assert.assertThat(e.getMessage(), Matchers.containsString(SubEntity.class.getSimpleName()));
-            Assert.assertThat(e.getMessage(), Matchers.containsString(ClassWithSetField.class.getSimpleName()));
-            Assert.assertThat(e.getMessage(), Matchers.containsString("testEntities.subEntities.thisFieldDoesNotExist"));
-            Assert.assertThat(e.getMessage(), Matchers.containsString("thisFieldDoesNotExist "));
+            assertThat(e.getMessage(), containsString(SubEntity.class.getSimpleName()));
+            assertThat(e.getMessage(), containsString(ReflectionTestClass.class.getSimpleName()));
+            assertThat(e.getMessage(), containsString("testEntities.subEntities.thisFieldDoesNotExist"));
+            assertThat(e.getMessage(), containsString("thisFieldDoesNotExist "));
         }
     }
 
     @Test
     public void testGetGenericInterfaceType() throws Exception {
-        Assert.assertEquals(Helper.getGenericInterfaceType(HibernateInTest.TestSearchFilter.class, 0), TestEntity.class);
+        assertEquals(Helper.getGenericInterfaceType(HibernateInTest.TestSearchFilter.class, 0), Entity.class);
     }
 
-    public class Dummy {
+    public final class Dummy {
         String s1 = "1";
         String s2 = "2";
 
@@ -57,7 +58,8 @@ public class HelperTest {
 
     @Test
     public void testInvokeGettersByReturnType() throws Exception {
-        Assert.assertThat(Helper.invokeGettersByReturnType(String.class, new Dummy()).get(0), Matchers.is("1"));
-        Assert.assertThat(Helper.invokeGettersByReturnType(String.class, new Dummy()).get(1), Matchers.is("2"));
+        List<String> actual = Helper.invokeGettersByReturnType(String.class, new Dummy());
+        assertThat(actual, contains("1", "2"));
+        assertThat(actual.size(), is(2));
     }
 }

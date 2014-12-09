@@ -23,7 +23,7 @@ public class HibernateWrapperToCriteriaMapper {
         Criterion andCriterion = null;
         if (!CollectionUtils.isEmpty(filters)) {
 
-            List<Criterion> criterions = filters.stream().map(wrapper -> wrapper.getCriterion()).collect(Collectors.toList());
+            List<Criterion> criterions = filters.stream().filter(wrapper -> wrapper.isEnabled()).map(wrapper -> wrapper.getCriterion()).collect(Collectors.toList());
 
             andCriterion = Restrictions.and(criterions.toArray(new Criterion[criterions.size()]));
         }
@@ -50,7 +50,7 @@ public class HibernateWrapperToCriteriaMapper {
     }
 
     public static Criteria addCriterionWrappers(Criteria criteria,
-                                                SearchFilter searchFilter) {
-        return addCriterionWrappers(criteria, searchFilter.getCriterions(), searchFilter.getOrCriterions(), searchFilter.getOrderWrapper());
+                                                SearchFilter searchFilter, boolean countQuery) {
+        return addCriterionWrappers(criteria, searchFilter.getCriterions(), searchFilter.getOrCriterions(), countQuery ? null : searchFilter.getOrderWrapper());
     }
 }

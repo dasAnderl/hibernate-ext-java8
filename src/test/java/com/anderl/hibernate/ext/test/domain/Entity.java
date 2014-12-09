@@ -3,7 +3,6 @@ package com.anderl.hibernate.ext.test.domain;
 import com.google.common.collect.Lists;
 
 import javax.persistence.CascadeType;
-import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import java.util.List;
@@ -11,12 +10,12 @@ import java.util.List;
 /**
  * Created by dasanderl on 07.09.14.
  */
-@Entity
-public class TestEntity extends _AbstractEntity {
+@javax.persistence.Entity
+public class Entity extends _AbstractEntity {
 
     private String name;
     private int age;
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "testEntity", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "entity", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SubEntity> subEntities = Lists.newArrayList();
 
     public String getName() {
