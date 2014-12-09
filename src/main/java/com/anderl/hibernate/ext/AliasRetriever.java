@@ -28,7 +28,7 @@ public class AliasRetriever {
         aliasesNotNull = addAliasesForWrappers(searchFilter.getCriterions(), aliasesNotNull);
         aliasesNotNull = addAliasesForOrWrappers(searchFilter.getOrCriterions(), aliasesNotNull);
 
-        Order order = searchFilter.getOrderWrapper();
+        Order order = searchFilter.getOrder();
         if (order != null && order.getCriterion().getAlias() != null) {
             aliasesNotNull.addAll(order.getCriterion().getAlias().getSubAliases());
         }

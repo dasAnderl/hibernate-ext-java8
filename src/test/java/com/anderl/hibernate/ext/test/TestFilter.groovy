@@ -17,7 +17,7 @@ import static com.anderl.hibernate.ext.AliasUtils.Criterion
 class TestFilter implements SearchFilter<Entity> {
 
     @Override
-    Order getOrderWrapper() {
+    Order getOrder() {
         return new Order(new Criterion("name"), true)
     }
 

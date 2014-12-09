@@ -51,6 +51,6 @@ public class HibernateWrapperToCriteriaMapper {
 
     public static Criteria addCriterionWrappers(Criteria criteria,
                                                 SearchFilter searchFilter, boolean countQuery) {
-        return addCriterionWrappers(criteria, searchFilter.getCriterions(), searchFilter.getOrCriterions(), countQuery ? null : searchFilter.getOrderWrapper());
+        return addCriterionWrappers(criteria, searchFilter.getCriterions(), searchFilter.getOrCriterions(), countQuery ? null : searchFilter.getOrder());
     }
 }

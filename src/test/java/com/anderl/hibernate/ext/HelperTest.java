@@ -22,7 +22,7 @@ public class HelperTest {
         Set<Entity> testEntities;
 
         @Override
-        public Order getOrderWrapper() {
+        public Order getOrder() {
             return null;
         }
 

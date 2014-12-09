@@ -44,7 +44,7 @@ public class PagingService<T> {
         LogTimer logTimer = new LogTimer().enter("page start firstResultIndex: {} maxResults {} for {}", firstResultIndex, maxResults, searchFilter.getType().getSimpleName());
         Criteria criteria = getCriteriaWithAliases(searchFilter);
         HibernateWrapperToCriteriaMapper.addCriterionWrappers(criteria, searchFilter, false);
-        Order order = searchFilter.getOrderWrapper();
+        Order order = searchFilter.getOrder();
         PagingServiceHelper.addDistinctIdAndOrderProjections(criteria, order);
         boolean hasOrder = order != null;
         //First retrieve distinct list of ids
