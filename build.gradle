@@ -74,6 +74,15 @@ uploadArchives {
     }
 }
 
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives sourcesJar
+}
+
 task gitAddMavenRepo(dependsOn: 'uploadArchives', type:Exec) {
     workingDir mavenRepoDir
     commandLine 'git', 'add', '--all'
