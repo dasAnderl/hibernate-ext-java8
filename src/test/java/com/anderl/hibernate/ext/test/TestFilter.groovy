@@ -26,9 +26,9 @@ class TestFilter implements SearchFilter<Entity> {
         return new PagingHelper()
     }
 
-    Filter<String> nameFilter = new Filter(new Criterion("name"), RestrictionsExt.equal, DomainProvider.entities[0].name)
-    Filter<Integer> ageFilter = new Filter(new Criterion("age"), RestrictionsExt.equal, DomainProvider.entities[0].age)
-    Filter<String> subNameFilter = new Filter(new Criterion("name", Aliases.SUBENTITIES), RestrictionsExt.equal, DomainProvider.entities[0].subEntities[0].name)
+    Filter<String> nameFilter = Filter.get(new Criterion("name"), RestrictionsExt.equal, String.class, DomainProvider.entities[0].name)
+    Filter<Integer> ageFilter = Filter.get(new Criterion("age"), RestrictionsExt.equal, Integer.class, DomainProvider.entities[0].age)
+    Filter<String> subNameFilter = Filter.get(new Criterion("name", Aliases.SUBENTITIES), RestrictionsExt.equal, String.class, DomainProvider.entities[0].subEntities[0].name)
 
     OrFilter orNameFilter;
 

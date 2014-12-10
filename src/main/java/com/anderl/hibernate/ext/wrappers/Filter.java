@@ -1,7 +1,6 @@
 package com.anderl.hibernate.ext.wrappers;
 
 
-import com.anderl.hibernate.ext.AliasUtils;
 import com.anderl.hibernate.ext.ColumnControl;
 import com.anderl.hibernate.ext.RestrictionsExt;
 import org.springframework.util.CollectionUtils;
@@ -11,33 +10,48 @@ import org.springframework.util.StringUtils;
 import java.lang.reflect.Field;
 import java.util.Collection;
 
+import static com.anderl.hibernate.ext.AliasUtils.Criterion;
+
 /**
  * Created by ga2unte on 12/2/13.
  */
 public class Filter<T> implements ColumnControl<T> {
 
-    private T value = null;
+    private final Criterion criterion;
     private final RestrictionsExt restrictionsExt;
-    private boolean enabled = true;
-    private final String labelMsgKey;
     private final String id;
-    private final AliasUtils.Criterion criterion;
+    private final Class<T> type;
+    private T value;
+    private boolean enabled = true;
+    private String labelMsgKey;
 
-    private String getId(AliasUtils.Criterion criterion) {
-        return criterion.getFieldPath().replace(".", "");
+    public static <T> Filter<T> get(Criterion criterion, RestrictionsExt restrictionsExt, Class<T> type) {
+        return new Filter<>(criterion, restrictionsExt, type);
     }
 
-    public Filter(AliasUtils.Criterion criterion, RestrictionsExt restrictionsExt, boolean enabled, String labelMsgKey) {
+    public static <T> Filter<T> get(Criterion criterion, RestrictionsExt restrictionsExt, Class<T> type, T value) {
+        return new Filter<>(criterion, restrictionsExt, type, value);
+    }
+
+    private Filter(Criterion criterion, RestrictionsExt restrictionsExt, String labelMsgKey, Class<T> type, T value) {
         this.criterion = criterion;
         this.restrictionsExt = restrictionsExt;
-        this.enabled = enabled;
+        this.value = value;
         this.labelMsgKey = labelMsgKey;
+        this.type = type;
         id = getId(criterion);
     }
 
-    public Filter(AliasUtils.Criterion criterion, RestrictionsExt restrictionsExt, T value) {
-        this(criterion, restrictionsExt, true, "label or msg key missing");
-        this.value = value;
+    private Filter(Criterion criterion, RestrictionsExt restrictionsExt, Class<T> type, T value) {
+        this(criterion, restrictionsExt, "", type, value);
+    }
+
+    private Filter(Criterion criterion, RestrictionsExt restrictionsExt, Class<T> type) {
+        this(criterion, restrictionsExt, "", type, null);
+    }
+
+    private String getId(Criterion criterion) {
+        return criterion.getFieldPath().replace(".", "");
     }
 
     public boolean isValid() {
@@ -93,12 +107,19 @@ public class Filter<T> implements ColumnControl<T> {
 
     @Override
     public T getValue() {
-        return value;
+        return (T)value;
     }
 
     @Override
     public void setValue(T value) {
-        this.value = value;
+        this.value = (T)value;
+
+        try {
+            this.value = type.cast(value);
+        }
+        catch (Exception e) {
+            System.out.println("bhjbdbjbfjbfjwkbefjwebfj");
+        }
     }
 
     @Override
@@ -122,7 +143,11 @@ public class Filter<T> implements ColumnControl<T> {
         return id;
     }
 
-    public AliasUtils.Criterion getAliasCriterion() {
+    public Criterion getAliasCriterion() {
         return criterion;
+    }
+
+    public Class<T> getType() {
+        return type;
     }
 }

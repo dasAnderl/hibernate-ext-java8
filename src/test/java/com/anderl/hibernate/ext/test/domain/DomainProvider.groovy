@@ -29,7 +29,7 @@ class DomainProvider {
         e3.subEntities.add(new SubEntity(name: name3, age: age3, entity: e3))
     }
 
-    def static getEntities() {
+    def static List<Entity> getEntities() {
         return [e1, e2, e3]
     }
 }
